@@ -4,7 +4,7 @@ const usersObj = require('../models/usersObj');
 const AddUser = async (req, res) => {
     try {
         const { name, email, password } = req.body;
-        const user = new usersObj(null,name, email, password, null);
+        const user = new usersObj(name, email, password, null);
         console.log(user);
         const userData = await userService.addUser(user);
 

@@ -13,6 +13,16 @@ const addUser = async (user) => {
     return data;
 };
 
+const getUserByUserId = async (userId) => {
+    const { data, error} = await supabase.from('users').select('*').eq('user_id', userId);
+
+    if (data == 0) {
+        console.log(error);
+        throw new Error('User Not Found');
+    }
+    return data[0];
+}
 
 
-module.exports = { addUser };
+
+module.exports = { addUser, getUserByUserId };

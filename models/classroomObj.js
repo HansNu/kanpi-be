@@ -1,5 +1,6 @@
 class classroomObj{
-    constructor(classroomCode, classroomName, classroomMemberAmt, classroomStat){
+    constructor(classroomId,classroomCode, classroomName, classroomMemberAmt, classroomStat){
+        this.classroomId = classroomId;
         this.classroomCode = classroomCode;
         this.classroomName = classroomName;
         this.classroomMemberAmt = classroomMemberAmt;
@@ -9,6 +10,7 @@ class classroomObj{
 
     toDatabaseFormat(){
         return{
+            classroom_id : this.classroomId,
             classroom_code : this.classroomCode,
             classroom_name : this.classroomName,
             classroom_member_amt : this.classroomMemberAmt,

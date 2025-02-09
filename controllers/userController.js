@@ -8,7 +8,7 @@ const AddUser = async (req, res) => {
         console.log(user);
         const userData = await userService.addUser(user);
 
-        res.status(201).json({
+        res.status(200).json({
             message: 'User added successfully',
             data: userData
         });
@@ -20,6 +20,14 @@ const AddUser = async (req, res) => {
     }
 };
 
+const GetUserByUserId = async (req, res) => {
+    const { userId } = req.body;
+    const getUser = await userService.getUserByUserId(userId);
+
+    res.status(200).json({
+        data: getUser
+    })
+}
 
 
-module.exports = {AddUser};
+module.exports = {AddUser, GetUserByUserId};

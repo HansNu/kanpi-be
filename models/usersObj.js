@@ -1,7 +1,8 @@
 // models/UsersObj.js
 
 class UsersObj {
-    constructor(name, email, password, userStat) {
+    constructor(userId,name, email, password, userStat) {
+        this.userId = userId;
         this.name = name;
         this.email = email;
         this.password = password;
@@ -10,6 +11,7 @@ class UsersObj {
 
     toDatabaseFormat() {
         return {
+            user_id: this.userId,
             name: this.name,
             email: this.email,
             password: this.password,

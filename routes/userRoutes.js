@@ -6,5 +6,6 @@ const baseUserUrl = '/user';
 
 router.post(baseUserUrl + '/addUser', userController.AddUser);  // Reference controller
 router.post(baseUserUrl + '/getUserByUserId', userController.GetUserByUserId);
+router.post(baseUserUrl + '/login', userController.Login);
 
 module.exports = router;

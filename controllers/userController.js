@@ -3,8 +3,8 @@ const usersObj = require('../models/usersObj');
 
 const AddUser = async (req, res) => {
     try {
-        const { name, email, password, userStat } = req.body;
-        const user = new usersObj(name, email, password, userStat);
+        const { name, email, password } = req.body;
+        const user = new usersObj(name, email, password);
         console.log(user);
         const userData = await userService.addUser(user);
 
@@ -29,5 +29,14 @@ const GetUserByUserId = async (req, res) => {
     })
 }
 
+const Login = async (req, res) => {
+    const { email, password } = req.body;
+    const login = await userService.login(email, password);
 
-module.exports = {AddUser, GetUserByUserId};
+    res.status(200).json({
+        LoginValid: login
+    })
+}
+
+
+module.exports = {AddUser, GetUserByUserId, Login};

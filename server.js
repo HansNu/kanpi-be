@@ -1,9 +1,9 @@
 const dotenv = require('dotenv');
 const express = require('express');
 const swaggerUi = require('swagger-ui-express');
-const swaggerSpec = require('./swagger');
-const userRoutes = require('./userRoutes');
-const supabase = require('../services/supabaseClient');
+const swaggerSpec = require('./routes/swagger');
+const userRoutes = require('./routes/userRoutes');
+const supabase = require('./services/supabaseClient');
 
 // Load environment variables
 dotenv.config();

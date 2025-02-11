@@ -1,16 +1,15 @@
 const userService = require('../services/userService');
-const usersObj = require('../models/usersObj');
+const model = require('../models/index');
+const joi = require ('joi');
 
 const AddUser = async (req, res) => {
     try {
-        const { name, email, password } = req.body;
-        const user = new usersObj(name, email, password, null);
-        console.log(user);
-        const userData = await userService.addUser(user);
-
+        const userData = model.usersObj.toDatabaseFormat(req.body);
+        const newUser = await userService.addUser(userData);
+        
         res.status(200).json({
             message: 'User added successfully',
-            data: userData
+            data: newUser
         });
     } catch (error) {
         res.status(500).json({
@@ -20,23 +19,33 @@ const AddUser = async (req, res) => {
     }
 };
 
+
 const GetUserByUserId = async (req, res) => {
-    const { userId } = req.body;
-    const getUser = await userService.getUserByUserId(userId);
+    const reqById = model.reqByIdObj.toDatabaseFormat(req.body);
+    const getUser = await userService.getUserByUserId(reqById.id);
 
     res.status(200).json({
         data: getUser
     })
-}
+};
+
+const GetUserByEmail = async (req, res) => {
+    const { email } = req.body;
+    const getUser = await userService.getUserByEmail(email);
+
+    res.status(200).json({
+        data: getUser
+    })
+};
 
 const Login = async (req, res) => {
-    const { email, password } = req.body;
-    const login = await userService.login(email, password);
+    const loginData = model.reqLoginObj.toDatabaseFormat(req.body);
+    const login = await userService.login(loginData);
 
     res.status(200).json({
         LoginValid: login
     })
-}
+};
 
 
-module.exports = {AddUser, GetUserByUserId, Login};
+module.exports = {AddUser, GetUserByUserId, Login, GetUserByEmail};

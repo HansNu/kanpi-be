@@ -1,22 +1,30 @@
-class classroomObj{
-    constructor(classroomCode, classroomName, classroomMemberAmt, classroomStat){
-        // this.classroomId = classroomId;
-        this.classroomCode = classroomCode;
-        this.classroomName = classroomName;
-        this.classroomMemberAmt = classroomMemberAmt;
-        this.classroomStat = classroomStat;
+const Joi = require('joi');
 
+class classroomObj {
+    static validate(data) {
+        const schema = Joi.object({
+            classroomCode: Joi.string().min(3).max(20).required(),
+            classroomName: Joi.string().min(3).max(100).required(),
+            classroomMemberAmt: Joi.number().integer().min(1).required(),
+            classroomStat: Joi.boolean().default(true),
+        });
+
+        return schema.validate(data);
     }
 
+    static toDatabaseFormat(data) {
+        const { error, value } = this.validate(data);
 
-    toDatabaseFormat(){
-        return{
-            // classroom_id : this.classroomId,
-            classroom_code : this.classroomCode,
-            classroom_name : this.classroomName,
-            classroom_member_amt : this.classroomMemberAmt,
-            classroom_stat : this.classroomStat
+        if (error) {
+            throw new Error(error.details[0].message);
         }
+
+        return {
+            classroom_code: value.classroomCode,
+            classroom_name: value.classroomName,
+            classroom_member_amt: value.classroomMemberAmt,
+            classroom_stat: value.classroomStat, // Convert to snake_case
+        };
     }
 }
 

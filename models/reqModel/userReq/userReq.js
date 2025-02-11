@@ -1,12 +1,28 @@
 const Joi = require('joi');
 
-class usersObj {
+class reqByIdObj {
     static validate(data) {
         const schema = Joi.object({
-            name: Joi.string().max(100).required(),
+            id: Joi.string().required(),
+        });
+
+        return schema.validate(data);        
+    }
+
+    static toDatabaseFormat(data) {
+        const { error, value } = this.validate(data);
+
+        return{
+            id: value.id
+        }
+    }
+}
+
+class reqLoginObj {
+    static validate(data) {
+        const schema = Joi.object({
             email: Joi.string().email().required(),
             password: Joi.string().min(8).required(),
-            userStat: Joi.boolean().default(true),
         });
 
         return schema.validate(data);
@@ -20,13 +36,11 @@ class usersObj {
         }
 
         return {
-            name: value.name,
             email: value.email,
             password: value.password,
-            user_stat: value.userStat,
         };
     }
 }
 
 
-module.exports = usersObj;
+module.exports = {reqLoginObj, reqByIdObj};

@@ -1,30 +1,25 @@
 const supabase = require('./supabaseClient');
 const commonService = require('./commonService');
-const UsersObj = require('../models/usersObj');
+const model = require('../models/index');
 
 const getUserByUserId = async (userId) => {
     const { data, error} = await supabase.from('users').select('*').eq('user_id', userId);
-    
-    if (data == 0) {
-        console.log(error);
-        throw new Error('User Not Found');
-    }
     return data[0];
 }
 
-const addUser = async (user) => {
-    user.userStat = true;
-    const userData = user.toDatabaseFormat();
-    
-    //bikin get user by email jgn pake id
-    // userCheck = new UsersObj();
-    // userCheck = await getUserByUserId(userData.user_id);
+const getUserByEmail = async (email) => {
+    const { data, error} = await supabase.from('users').select('*').eq('email', email);
+    return data[0];
+}
 
-    // if(user != null) {
-    //     throw new Error('User already exists');
-    // }
+const addUser = async (userData) => {
+    const userExisting = await getUserByEmail(userData.email);
 
-    const { data, error } = await supabase.from('users').insert(userData);
+    if (userExisting) {
+        throw new Error('Email already exists');
+    }
+
+    const { data, error } = await supabase.from('users').insert(userData).select('*');
 
     if (error) {
         console.log(error);
@@ -33,13 +28,20 @@ const addUser = async (user) => {
     return data;
 };
 
-const login = async (email, password) => {
-    const { data, error } = await supabase.from('users').select('*').eq('email', email).eq('password', password);
 
-    if (data != null){
-        return true;
+const login = async (loginData) => {
+    const { data, error } = await supabase.from('users').select('*').eq('email', loginData.email).eq('password', loginData.password);
+
+    userLogin = data;
+
+    if (userLogin.length != 0){
+        return {
+            user : userLogin, 
+            validity: true};
     } else
-        return false;
-} 
+        return {
+            message: "No user exists with this email", 
+            validity: false};
+}; 
 
-module.exports = { addUser, getUserByUserId, login};
+module.exports = { addUser, getUserByUserId, getUserByEmail, login};

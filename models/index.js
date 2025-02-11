@@ -1,7 +1,9 @@
-import usersObj from './usersObj.js';
-import classroomObj from './classroomObj.js';
+const usersObj = require('./usersObj.js');
+const classroomObj = require('./classroomObj.js');
+const userReq = require('./reqModel/userReq/userReq.js');
 
-module.export = {
+module.exports = {
   usersObj,
   classroomObj,
+  ...userReq
 };

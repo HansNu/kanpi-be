@@ -3,6 +3,8 @@
     "@supabase/supabase-js": "^2.48.1",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "joi": "^17.13.3",
+    "joii": "^4.1.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
   }

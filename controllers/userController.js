@@ -39,12 +39,19 @@ const GetUserByEmail = async (req, res) => {
 };
 
 const Login = async (req, res) => {
-    const loginData = model.reqLoginObj.toDatabaseFormat(req.body);
-    const login = await userService.login(loginData);
+    try {
+        const loginData = model.reqLoginObj.toDatabaseFormat(req.body);
 
-    res.status(200).json({
-        LoginValid: login
-    })
+        const login = await userService.login(loginData);
+
+        res.status(200).json({
+            LoginValid: login
+        });
+    } catch (error) {
+        res.status(200).json({
+            LoginValid: false
+        });
+    }
 };
 
 

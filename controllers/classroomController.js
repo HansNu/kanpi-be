@@ -13,6 +13,15 @@ class classroomController {
             data: classrooms
         });
     }
+
+    async GetListClassroomByUserId (req, res){
+        const reqById = model.reqByIdObj.toDatabaseFormat(req.body);
+        const classrooms = await classroomService.getListClassroomByUserId(reqById.id);
+        
+        res.status(200).json({
+            data: classrooms
+        });
+    }
 }
 
 module.exports = new classroomController();

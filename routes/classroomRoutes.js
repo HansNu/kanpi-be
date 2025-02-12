@@ -5,6 +5,7 @@ const baseUserUrl = '/classroom';
 
 //get
 router.post(baseUserUrl + '/getListClassroom', classroomController.GetListClassroom);
+router.post(baseUserUrl + '/getListClassroomByUserId', classroomController.GetListClassroomByUserId);
 
 
 //addEdit

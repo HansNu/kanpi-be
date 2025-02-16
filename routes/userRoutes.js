@@ -1,6 +1,6 @@
 // userRoutes.js
 const express = require('express');
-const userController = require('../controllers/userController');  // Change this
+const userController = require('../controllers/userController');
 const router = express.Router();
 const baseUserUrl = '/user';
 
@@ -10,7 +10,7 @@ router.post(baseUserUrl + '/getUserByEmail', userController.GetUserByEmail);
 
 
 //addEdit
-router.post(baseUserUrl + '/addUser', userController.AddUser);  // Reference controller
+router.post(baseUserUrl + '/addUser', userController.AddUser); 
 
 //transaction
 router.post(baseUserUrl + '/login', userController.Login);

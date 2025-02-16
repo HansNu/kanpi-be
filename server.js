@@ -4,6 +4,7 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./routes/swagger');
 const userRoutes = require('./routes/userRoutes');
 const classroomRoutes = require('./routes/classroomRoutes');
+const classroomMemberRoutes = require('./routes/classroomMemberRoutes');
 const supabase = require('./services/supabaseClient');
 
 // Load environment variables
@@ -29,7 +30,8 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // User routes
 app.use(baseUrl, userRoutes);
-app.use(baseUrl, classroomRoutes); // Example: /api/user
+app.use(baseUrl, classroomRoutes);
+app.use(baseUrl, classroomMemberRoutes); // Example: /api/user
 
 // Start the server
 app.listen(port, () => {

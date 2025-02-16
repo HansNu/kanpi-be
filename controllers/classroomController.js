@@ -15,11 +15,42 @@ class classroomController {
     }
 
     async GetListClassroomByUserId (req, res){
+        if(req.boy = 0){
+            return res.status(200).json({});
+        }
         const reqById = model.reqByIdObj.toDatabaseFormat(req.body);
         const classrooms = await classroomService.getListClassroomByUserId(reqById.id);
         
         res.status(200).json({
             data: classrooms
+        });
+    }
+
+    async GetClassroomByClassroomCode (req, res){
+        const classrooms = await classroomService.getClassroomByClassroomCode(req.body);
+        
+        res.status(200).json({
+            data: classrooms
+        });
+    }
+
+    async AddClassroom (req, res){
+        const classroomData = model.classroomObj.toDatabaseFormat(req.body);
+        const newClassroom = await classroomService.addClassroom(classroomData);
+        
+        res.status(200).json({
+            message: "Classroom added successfully",
+            data: newClassroom
+        });
+    }
+
+    async DeleteClassroom (req, res){
+        const reqByCode = model.reqByCodeObj.toDatabaseFormat(req.body);
+        const deletedClassroom = await classroomService.deleteClassroom(reqByCode.code);
+        
+        res.status(200).json({
+            message: "Classroom deleted successfully",
+            data: deletedClassroom
         });
     }
 }

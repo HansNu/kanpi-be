@@ -5,7 +5,7 @@ class classroomObj {
         const schema = Joi.object({
             classroomCode: Joi.string().min(3).max(20).required(),
             classroomName: Joi.string().min(3).max(100).required(),
-            classroomMemberAmt: Joi.number().integer().min(1).required(),
+            classroomMemberAmt: Joi.number().integer().min(1).default(0),
             classroomStat: Joi.boolean().default(true),
         });
 

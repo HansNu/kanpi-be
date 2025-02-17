@@ -1,6 +1,7 @@
 const supabase = require('./supabaseClient');
 const model = require('../models/index');
 const userController = require('../controllers/userController');
+const userService = require('../services/userService');
 
 class classroomService {
 
@@ -30,15 +31,50 @@ class classroomService {
     }
 
     async addClassroom(classroomData) {
-        const existingClassroom = await this.getClassroomByClassroomCode(classroomData.classroom_code);
-        if(existingClassroom.length > 0) {
+        const existingClassroom = await this.getClassroomByClassroomCode(classroomData.classroomCode);
+        if (existingClassroom.length > 0) {
             throw new Error('Classroom code already exists');
         }
+    
+        const adminData = await userService.getUserByUserId(classroomData.userId);
+        
+        if (!adminData) {
+            throw new Error('user not found');
+        }
+    
+        const { data: newClassroom, error: classroomError } = await supabase
+            .from('classroom')
+            .insert({
+                classroom_code: classroomData.classroomCode,
+                classroom_name: classroomData.classroomName,
+                classroom_member_amt: classroomData.classroomMemberAmt,
+                classroom_stat: classroomData.classroomStat,
+            }) 
+            .select('*'); 
+    
+        if (classroomError) {
+            throw new Error(`Error creating classroom: ${classroomError.message}`);
+        }
+    
+        const { data: addSuperAdmin, error: adminError } = await supabase
+            .from('classroom_admin')
+            .insert([
+                {
+                    user_id: adminData.user_id,
+                    classroom_code: classroomData.classroomCode,
+                    admin_name: adminData.name,
+                    admin_active: true,
+                }
+            ])
+            .select('*'); 
 
-        const newClassroom = await supabase.from('classroom').insert(classroomData).select('*');
-
-        return newClassroom;
+        if (adminError) {
+            throw new Error(`Error adding admin: ${adminError.message}`);
+        }
+    
+        return { newClassroom, addSuperAdmin };
     }
+    
 
     async deleteClassroom(classroomCode) {
         const { error: memberError } = await supabase

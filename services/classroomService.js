@@ -10,20 +10,74 @@ class classroomService {
         return data;
     }
 
-    async getListClassroomByUserId(userId){
-        const getUsers = await supabase.from('users').select('*').eq('user_id', userId);
-
-        const getClassroomCode = await supabase
-                                .from('classroom_member')
-                                .select('classroom_code')
-                                .eq('user_id', getUsers.data[0].user_id);
-
-        const {data, error} = await supabase.from('classroom')
-                                            .select('*')
-                                            .in('classroom_code', getClassroomCode.data.map(({ classroom_code }) => classroom_code))
-
-        return data;
+    async getListClassroomByUserId(userId) {
+        if (!userId) {
+            throw new Error("Invalid userId");
+        }
+    
+        // Fetch classroom codes from classroom_member and classroom_admin
+        const { data: memberData, error: memberError } = await supabase
+            .from('classroom_member')
+            .select('classroom_code')
+            .eq('user_id', userId);
+    
+        const { data: adminData, error: adminError } = await supabase
+            .from('classroom_admin')
+            .select('classroom_code')
+            .eq('user_id', userId);
+    
+        if (memberError || adminError) {
+            throw new Error(`Error fetching classrooms: ${memberError?.message || adminError?.message}`);
+        }
+    
+        // Merge and get unique classroom codes
+        const classroomCodes = [
+            ...(memberData || []).map(({ classroom_code }) => classroom_code),
+            ...(adminData || []).map(({ classroom_code }) => classroom_code)
+        ];
+        
+        const uniqueClassroomCodes = [...new Set(classroomCodes)];
+    
+        if (uniqueClassroomCodes.length === 0) {
+            return []; // No classrooms found
+        }
+    
+        // Fetch classrooms
+        const { data: classroomData, error: classroomError } = await supabase
+            .from('classroom')
+            .select('*')
+            .in('classroom_code', uniqueClassroomCodes);
+    
+        if (classroomError) {
+            throw new Error(`Error fetching classroom data: ${classroomError.message}`);
+        }
+    
+        return classroomData;
     }
+    
+    async generateClassroomCode() {
+        const generateRandomCode = () => Math.random().toString(36).substring(2, 10).toUpperCase();
+    
+        let classroomCode;
+        let isUnique = false;
+    
+        while (!isUnique) {
+            classroomCode = generateRandomCode();
+    
+            const { data, error } = await supabase
+                .from('classroom')
+                .select('classroom_code')
+                .eq('classroom_code', classroomCode)
+                .single();
+    
+            if (data == null) {
+                isUnique = true;
+                return classroomCode;
+            }
+        }
+    
+    }
+    
 
     async getClassroomByClassroomCode(reqCode) {
         const classCode = await supabase.from('classroom').select('*').eq('classroom_code', reqCode.classroomCode);

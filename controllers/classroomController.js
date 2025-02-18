@@ -15,7 +15,7 @@ class classroomController {
     }
 
     async GetListClassroomByUserId (req, res){
-        if(req.boy = 0){
+        if(req.body.id == 0){
             return res.status(200).json({});
         }
         const reqById = model.reqByIdObj.toDatabaseFormat(req.body);
@@ -51,6 +51,14 @@ class classroomController {
         res.status(200).json({
             message: "Classroom deleted successfully",
             data: deletedClassroom
+        });
+    }
+
+    async GenerateClassroomCode(req, res) {
+        const classroomCode = await classroomService.generateClassroomCode();
+        
+        res.status(200).json({
+            data: classroomCode
         });
     }
 }

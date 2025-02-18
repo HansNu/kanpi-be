@@ -14,5 +14,6 @@ router.post(baseUrl + '/addClassroom', classroomController.AddClassroom);
 
 //transaction
 router.post(baseUrl + '/deleteClassroom', classroomController.DeleteClassroom);
+router.post(baseUrl + '/generateClassroomCode', classroomController.GenerateClassroomCode);
 
 module.exports = router;

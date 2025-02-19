@@ -15,7 +15,6 @@ class classroomMemberController{
             const newClassroom = await classroomMemberService.joinClassroom(req.body.classroomCode, req.body.userId, req.body.memberName);
     
             res.status(200).json({
-                message: "Classroom joined successfully",
                 data: newClassroom
             });
     }

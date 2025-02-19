@@ -6,6 +6,24 @@ class classroomMemberService {
 
     async joinClassroom(classroomCode, userId, memberName) {
         const memObj = model.classroomMemberObj.toDatabaseFormat({ classroomCode, userId, memberName });
+        
+        const { data: memberData, error: memberError } = await supabase
+            .from('classroom_member')
+            .select('*')
+            .eq('user_id', userId, 'classroom_code', classroomCode);
+
+    
+        const { data: adminData, error: adminError } = await supabase
+            .from('classroom_admin')
+            .select('*')
+            .eq('user_id', userId, 'classroom_code', classroomCode);
+
+            if (((memberData && adminData) != null)) {
+                return {
+                    message: `User: ${memberName} already exists in this classroom`
+                };
+            }
+
         const { data, error } = await supabase
             .from('classroom_member')
             .insert([

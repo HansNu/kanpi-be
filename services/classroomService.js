@@ -15,7 +15,6 @@ class classroomService {
             throw new Error("Invalid userId");
         }
     
-        // Fetch classroom codes from classroom_member and classroom_admin
         const { data: memberData, error: memberError } = await supabase
             .from('classroom_member')
             .select('classroom_code')
@@ -30,7 +29,6 @@ class classroomService {
             throw new Error(`Error fetching classrooms: ${memberError?.message || adminError?.message}`);
         }
     
-        // Merge and get unique classroom codes
         const classroomCodes = [
             ...(memberData || []).map(({ classroom_code }) => classroom_code),
             ...(adminData || []).map(({ classroom_code }) => classroom_code)
@@ -39,10 +37,9 @@ class classroomService {
         const uniqueClassroomCodes = [...new Set(classroomCodes)];
     
         if (uniqueClassroomCodes.length === 0) {
-            return []; // No classrooms found
+            return []; 
         }
     
-        // Fetch classrooms
         const { data: classroomData, error: classroomError } = await supabase
             .from('classroom')
             .select('*')
@@ -51,8 +48,18 @@ class classroomService {
         if (classroomError) {
             throw new Error(`Error fetching classroom data: ${classroomError.message}`);
         }
-    
-        return classroomData;
+
+        const adminClassroomSet = new Set((adminData || []).map(({ classroom_code }) => classroom_code));
+
+        const updatedClassroomData = classroomData.map(classroom => ({
+            ...classroom,
+            classroom_member_amt: adminClassroomSet.has(classroom.classroom_code) 
+                ? classroom.classroom_member_amt + 1 
+                : classroom.classroom_member_amt
+        }));
+
+
+        return updatedClassroomData;
     }
     
     async generateClassroomCode() {

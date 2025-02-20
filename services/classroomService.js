@@ -84,10 +84,16 @@ class classroomService {
         }
     
     }
-    
 
     async getClassroomByClassroomCode(reqCode) {
         const classCode = await supabase.from('classroom').select('*').eq('classroom_code', reqCode.classroomCode);
+
+        if(classCode == null || classCode.length == 0){
+            return {
+                message : `Classroom with code ${reqCode.classroomCode} not found`
+            };
+        }
+
         return classCode.data;
     }
 

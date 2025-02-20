@@ -4,6 +4,7 @@ const baseUrl = '/classroomMember';
 const classroomMemberController = require('../controllers/classroomMemberController');
 
 //get
+router.post(baseUrl + '/getClassroomMemberByClassroomCode', classroomMemberController.GetClassroomMemberByClassroomCode);
 
 //addEdit
 

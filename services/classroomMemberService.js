@@ -4,6 +4,17 @@ const model = require('../models/index');
 
 class classroomMemberService {
 
+    async getClassroomMemberByClassroomCode(classroomCode) {
+        const { data, error } = await supabase.from('classroom_member').select('*').eq('classroom_code', classroomCode);
+        if (data == null || data.length == 0) {
+            return {
+                message : `Classroom does not exists or there are no members in classroom with code ${classroomCode}`
+            }
+        }
+
+        return data;
+    }
+
     async joinClassroom(classroomCode, userId, memberName) {
         
         const { data: userData, error: userError } = await supabase

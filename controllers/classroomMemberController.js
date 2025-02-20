@@ -4,6 +4,14 @@ const model = require('../models/index');
 
 class classroomMemberController{
 
+    async GetClassroomMemberByClassroomCode (req, res) {
+        const classroomMembers = await classroomMemberService.getClassroomMemberByClassroomCode(req.body.classroomCode);
+        
+        res.status(200).json({
+            data: classroomMembers
+        });
+    }
+
     async JoinClassroom(req, res) {
             const existingClassroom = await classroomService.getClassroomByClassroomCode(req.body); 
             if (existingClassroom == null) {

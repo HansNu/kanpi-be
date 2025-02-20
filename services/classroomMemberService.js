@@ -5,39 +5,61 @@ const model = require('../models/index');
 class classroomMemberService {
 
     async joinClassroom(classroomCode, userId, memberName) {
-        const memObj = model.classroomMemberObj.toDatabaseFormat({ classroomCode, userId, memberName });
         
-        const { data: memberData, error: memberError } = await supabase
-            .from('classroom_member')
-            .select('*')
-            .eq('user_id', userId, 'classroom_code', classroomCode);
+        const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select(`
+            *,
+            classroom_member:classroom_member!left(
+            classroom_code, member_name
+            ),
+            classroom_admin:classroom_admin!left(
+            classroom_code, admin_name
+            )
+        `)
+        .eq('user_id', userId)
+        .eq('name', memberName)
+        .single();
 
-    
-        const { data: adminData, error: adminError } = await supabase
-            .from('classroom_admin')
-            .select('*')
-            .eq('user_id', userId, 'classroom_code', classroomCode);
-
-            if (((memberData && adminData) != null)) {
-                return {
-                    message: `User: ${memberName} already exists in this classroom`
-                };
-            }
-
-        const { data, error } = await supabase
-            .from('classroom_member')
-            .insert([
-                { classroom_code: memObj.classroom_code, user_id: memObj.user_id, member_name: memObj.member_name},
-            ])
-            .select('*');
-    
-        if (error) {
-            console.error("Invalid data:", error);
-            return null;
+        if (userError || !userData) {
+        return { message: "User not found" };
         }
-    
+
+        const isMember = userData.classroom_member && userData.classroom_member.some(
+        (cm) => cm.classroom_code === classroomCode
+        );
+        const isAdmin = userData.classroom_admin && userData.classroom_admin.some(
+        (ca) => ca.classroom_code === classroomCode
+        );
+
+        if (isMember) {
+        return { message: `User ${memberName} already exists in this classroom` };
+        }
+        if (isAdmin) {
+        return { message: `User ${memberName} already exists as an admin of this classroom` };
+        }
+
+        const memObj = model.classroomMemberObj.toDatabaseFormat({ classroomCode, userId, memberName });
+
+        // Insert the new classroom member.
+        const { data, error } = await supabase
+        .from('classroom_member')
+        .insert([{
+            classroom_code: memObj.classroom_code,
+            user_id: memObj.user_id,
+            member_name: memObj.member_name,
+        }])
+        .select('*');
+
+        if (error) {
+        console.error("Error inserting user into classroom:", error);
+        return { message: "Error inserting user into classroom" };
+        }
+
         return data;
+
     }
+    
     
     async removeClassroomMemberByCode(req) {
         const { data, error } = await supabase

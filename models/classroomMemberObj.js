@@ -28,4 +28,4 @@ class classroomMemberObj {
     }
 }
 
-module.exports = classroomMemberObj
+module.exports = classroomMemberObj;

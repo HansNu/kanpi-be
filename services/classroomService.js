@@ -175,7 +175,6 @@ class classroomService {
         return { message: "Classroom and related data deleted successfully" };
     }
     
-    
 }
 
 module.exports = new classroomService();

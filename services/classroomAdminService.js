@@ -8,7 +8,7 @@ class classroomAdminService {
         const { data, error } = await supabase.from('classroom_admin').select('*').eq('classroom_code', req.classroomCode).eq('user_id', req.userId);
         if (data == null || data.length == 0) {
             return {
-                message : `Classroom does not exists or there are no admins in classroom with code ${classroomCode}`
+                message : `Classroom does not exists or there are no admins in classroom with code ${req.classroomCode}`
             }
         }
 
@@ -19,11 +19,13 @@ class classroomAdminService {
         const { data, error } = await supabase.from('classroom_admin').select('*').eq('classroom_code', req.classroomCode);
         if (data == null || data.length == 0) {
             return {
-                message : `Classroom does not exists or there are no admins in classroom with code ${classroomCode}`
+                message : `Classroom does not exists or there are no admins in classroom with code ${req.classroomCode}`
             }
         }
         return data;
     }
+
+    
 
 }
 

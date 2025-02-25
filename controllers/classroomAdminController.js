@@ -9,8 +9,6 @@ class classroomAdminController {
             return res.status(200).json({ message: classroomAdmin.message });
         }
 
-        classroomAdmin[0].role = 'SuperAdmin';
-
         res.status(200).json({
             data: classroomAdmin
         });

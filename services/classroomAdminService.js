@@ -25,7 +25,6 @@ class classroomAdminService {
         return data;
     }
 
-    
 
 }
 

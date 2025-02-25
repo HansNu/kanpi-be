@@ -5,10 +5,26 @@ const model = require('../models/index');
 class classroomMemberController{
 
     async GetClassroomMemberByClassroomCode (req, res) {
-        const classroomMembers = await classroomMemberService.getClassroomMemberByClassroomCode(req.body.classroomCode);
+        const classroomMembers = await classroomMemberService.getClassroomMemberByClassroomCode(req.body);
         
         res.status(200).json({
             data: classroomMembers
+        });
+    }
+
+    async GetClassroomAdminMemberByClassroomCode(req, res) {
+        const classroomAdmin = await classroomMemberService.getClassroomAdminByClassroomCode(req.body);
+
+        res.status(200).json({
+            data:classroomAdmin
+        });
+    }
+
+    async GetClassroomStudentMemberByClassroomCode(req, res){
+        const classroomStudent = await classroomMemberService.getClassroomStudentMemberByClassroomCode(req.body);
+
+        res.status(200).json({
+            data:classroomStudent
         });
     }
 

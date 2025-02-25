@@ -7,6 +7,7 @@ class classroomMemberObj {
             memberName: Joi.string().min(3).max(100).required(),
             classroomCode: Joi.string().min(1),
             memberRole: Joi.string().min(1).default('Member'),
+            memberPosition: Joi.string().min(1).default('Student'),
         });
 
         return schema.validate(data);
@@ -23,7 +24,8 @@ class classroomMemberObj {
             user_id: value.userId,
             member_name: value.memberName,
             classroom_code: value.classroomCode,
-            member_role: value.memberRole, // Convert to snake_case
+            member_role: value.memberRole,
+            member_position: value.memberPosition
         };
     }
 }

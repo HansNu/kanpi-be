@@ -1,18 +1,26 @@
 const supabase = require('./supabaseClient');
 const userService = require('../services/userService');
 const model = require('../models/index');
+const adminService = require('../services/classroomAdminService');
+
+const member = 'member' || 'Member';
+const admin = 'admin' || 'Admin';
 
 class classroomMemberService {
 
-    async getClassroomMemberByClassroomCode(classroomCode) {
-        const { data, error } = await supabase.from('classroom_member').select('*').eq('classroom_code', classroomCode);
+    async getClassroomMemberByClassroomCode(req) {
+        const { data, error } = await supabase.from('classroom_member').select('*').eq('classroom_code', req.classroomCode);
         if (data == null || data.length == 0) {
             return {
-                message : `Classroom does not exists or there are no members in classroom with code ${classroomCode}`
+                message : `Classroom does not exists or there are no members in classroom with code ${req.classroomCode}`
             }
         }
 
-        return data;
+        const getDataSuperAdmin = await adminService.getClassroomSuperAdminByClassroomCode(req);
+
+        const classroomMembers = [...data, ...getDataSuperAdmin];
+
+        return classroomMembers;
     }
 
     async joinClassroom(classroomCode, userId, memberName) {
@@ -89,7 +97,34 @@ class classroomMemberService {
         return data;
     }
     
+    async getClassroomAdminByClassroomCode(req) {
+        const { data, error } = await supabase.from('classroom_member').select('*')
+                                .eq('classroom_code', req.classroomCode).eq('member_role', admin);
+        if (data == null || data.length == 0) {
+            return {
+                message : `No Admin found in classroom with code ${req.classroomCode}`
+            }
+        }
+    
+        return data;
+    }
 
+    async getClassroomStudentMemberByClassroomCode(req) {
+        const { data, error } = await supabase.from('classroom_member').select('*')
+                                .eq('classroom_code', req.classroomCode).eq('member_role', member);
+        if (data == null || data.length == 0) {
+            return {
+                message : `No Student found in classroom with code ${req.classroomCode}`
+            }
+        }
+    
+        return data;
+    }
+
+    async updateMemberRole(req) {
+        const { data, error } = await supabase.from('classroom_member').update({ member_role: req.memberRole }).eq('classroom_code', req.classroomCode).eq('member_name', req.memberName).select('*');
+        return data;
+    }
 
 }
 

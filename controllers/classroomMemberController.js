@@ -51,6 +51,14 @@ class classroomMemberController{
             data: removedClassroom
         });
     }
+
+    async UpdateMemberRole(req, res) {
+        const updatedRole = await classroomMemberService.updateMemberRole(req.body);
+
+        res.status(200).json({
+            data: updatedRole
+        });
+    }
 }
 
 module.exports = new classroomMemberController();

@@ -14,5 +14,6 @@ router.post(baseUrl + '/getClassroomStudentMemberByClassroomCode', classroomMemb
 //transaction
 router.post(baseUrl + '/joinClassroom', classroomMemberController.JoinClassroom);
 router.post(baseUrl + '/removeClassroomMemberByCode', classroomMemberController.RemoveClassroomMemberByCode);
+router.post(baseUrl + '/updateMemberRole', classroomMemberController.UpdateMemberRole);
 
 module.exports = router;

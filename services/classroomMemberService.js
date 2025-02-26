@@ -89,12 +89,20 @@ class classroomMemberService {
                 classroom_code: req.classroomCode 
             })
             .select('*');
-    
+            
         if (error) {
             console.error("Failed to delete classroom member:", error);
             return null;
-        }
-        return data;
+        } else if (data == null || data.length == 0) {
+            return {
+                message : `${req.memberName} not found or has been removed from classroom ${req.classroomCode}`
+            }
+        } else {
+            return{
+                data : data,
+                message : `${req.memberName} has been removed from classroom ${req.classroomCode}`
+            } 
+        } 
     }
     
     async getClassroomAdminByClassroomCode(req) {

@@ -17,8 +17,9 @@ class classroomMemberService {
         }
 
         const getDataSuperAdmin = await adminService.getClassroomSuperAdminByClassroomCode(req);
+        const superAdminData = Array.isArray(getDataSuperAdmin) ? getDataSuperAdmin : [];
 
-        const classroomMembers = [...data, ...getDataSuperAdmin];
+        const classroomMembers = [...data, ...superAdminData];
 
         return classroomMembers;
     }

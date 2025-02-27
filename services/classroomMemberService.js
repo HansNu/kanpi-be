@@ -10,7 +10,9 @@ class classroomMemberService {
 
     async getClassroomMemberByClassroomCode(req) {
         const { data, error } = await supabase.from('classroom_member').select('*').eq('classroom_code', req.classroomCode);
-        if (data == null || data.length == 0) {
+        const { data: adminData, error: adminError } = await supabase.from('classroom_admin').select('*').eq('classroom_code', req.classroomCode);
+        
+        if ((data == null || data.length == 0) && (adminData == null || adminData.length == 0)) {
             return {
                 message : `Classroom does not exists or there are no members in classroom with code ${req.classroomCode}`
             }

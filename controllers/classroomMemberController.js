@@ -46,9 +46,7 @@ class classroomMemberController{
     async RemoveClassroomMemberByCode(req, res) {
         const removedClassroom = await classroomMemberService.removeClassroomMemberByCode(req.body);
         
-        res.status(200).json({
-            data: removedClassroom
-        });
+        return res.status(200).json(removedClassroom);
     }
 
     async UpdateMemberRole(req, res) {

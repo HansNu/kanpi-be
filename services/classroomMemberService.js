@@ -130,16 +130,16 @@ class classroomMemberService {
     }
 
     async updateMemberRole(req) {
-        let position = ""; 
+        let role = ""; 
 
-        if (req.memberRole === "Member") {
-            position = "Student";
-        } else if (req.memberRole === "Admin") {
-            position = "Teacher";
+        if (req.memberPosition === "Student") {
+            role = "Member";
+        } else if (req.memberPosition === "Teacher") {
+            role = "Admin";
         }
 
         const { data, error } = await supabase.from('classroom_member')
-                                .update({ member_role: req.memberRole, member_position: position })
+                                .update({ member_role: role, member_position: req.memberPosition })
                                 .eq('classroom_code', req.classroomCode).eq('member_id', req.memberId).select('*');
         if (error ) {
             console.error("Failed to update classroom member role:", error);

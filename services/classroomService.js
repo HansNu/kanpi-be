@@ -129,8 +129,8 @@ class classroomService {
                 {
                     user_id: adminData.user_id,
                     classroom_code: classroomData.classroomCode,
-                    admin_name: adminData.name,
-                    admin_active: true,
+                    member_name: adminData.name,
+                    member_active: true,
                 }
             ])
             .select('*'); 

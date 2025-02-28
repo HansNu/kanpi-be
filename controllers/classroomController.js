@@ -49,7 +49,6 @@ class classroomController {
         const deletedClassroom = await classroomService.deleteClassroom(reqByCode.code);
         
         res.status(200).json({
-            message: "Classroom deleted successfully",
             data: deletedClassroom
         });
     }

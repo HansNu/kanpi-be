@@ -147,28 +147,28 @@ class classroomService {
         const { data:memberData, error: memberError } = await supabase
             .from("classroom_member")
             .delete()
-            .eq("classroom_code", classroomCode);
+            .eq("classroom_code", classroomCode).select('*');
     
         if (memberError) throw new Error(`Failed to delete classroom members: ${memberError.message}`);
     
         const { data:adminData, error: adminError } = await supabase
             .from("classroom_admin")
             .delete()
-            .eq("classroom_code", classroomCode);
+            .eq("classroom_code", classroomCode).select('*');
     
         if (adminError) throw new Error(`Failed to delete classroom admins: ${adminError.message}`);
     
         const { data: subjectData, error: subjectError } = await supabase
             .from("classroom_subjects")
             .delete()
-            .eq("classroom_code", classroomCode);
+            .eq("classroom_code", classroomCode).select('*');
     
         if (subjectError) throw new Error(`Failed to delete classroom subjects: ${subjectError.message}`);
     
         const { data: classroomData, error: classroomError } = await supabase
             .from("classroom")
             .delete()
-            .eq("classroom_code", classroomCode);
+            .eq("classroom_code", classroomCode).select('*');
     
         if (classroomError) throw new Error(`Failed to delete classroom: ${classroomError.message}`);
 

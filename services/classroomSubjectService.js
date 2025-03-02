@@ -27,7 +27,7 @@ class classroomSubjectService {
 
         const existingSubject  = await supabase.from('classroom_subjects').select('*').eq('subject_code', req.subjectCode).eq('classroom_code', req.classroomCode);
 
-        if (existingSubject != null || existingSubject.data.length != 0) {
+        if (existingSubject.data.length != 0) {
             return {
                 message : `Subject with code ${req.subjectCode} already exists in classroom with code ${req.classroomCode}`
             }

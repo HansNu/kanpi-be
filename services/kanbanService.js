@@ -9,6 +9,7 @@ class kanbanService {
 
     async getKanbanById(kanbanId) {
         const { data, error } = await supabase.from('kanban').select('*').eq('kanban_id', kanbanId);
+
         return data[0];
     }
 
@@ -45,8 +46,78 @@ class kanbanService {
         return data[0];
     }
 
+    //update kanban to in progress
+    async updateKanbanToInProgress(kanbanId) {
+        const kanbanData = await this.getKanbanById(kanbanId);
 
-}
+        if(kanbanData == null || kanbanData.length == 0) {
+            throw new Error('Kanban not found');
+        }
+
+        if (kanbanData.kanban_stat != 'NEW') {
+            throw new Error('Kanban Status has to be in NEW to be updated to IN PROGRESS');
+        }
+
+        const { data, error } = await supabase.from('kanban').update({ kanban_stat: 'IN PROGRESS' }).eq('kanban_id', kanbanId).select('*');
+
+
+        return data;
+    }
+    
+    //update kanban to done
+    async updateKanbanToDone(kanbanId) {
+        const kanbanData = await this.getKanbanById(kanbanId);
+
+        if(kanbanData == null || kanbanData.length == 0) {
+            throw new Error('Kanban not found');
+        }
+
+        if (kanbanData.kanban_stat != 'IN PROGRESS') {
+            throw new Error('Kanban Status has to be in IN PROGRESS to be updated to DONE');
+        }
+
+        const { data, error } = await supabase.from('kanban').update({ kanban_stat: 'DONE' }).eq('kanban_id', kanbanId).select('*');
+        
+        return data;
+    }
+
+    //delete kanban
+    async deleteKanban(kanbanId) {
+        const kanbanData = await this.getKanbanById(kanbanId);
+
+        if(kanbanData == null || kanbanData.length == 0) {
+            throw new Error('Kanban not found');
+        }
+
+        const { data, error } = await supabase.from('kanban').delete().eq('kanban_id', kanbanId).select('*');
+        return data;
+    }
+
+    //get list kanban by user
+    async getListKanbanByUser(userId) {
+        const { data, error } = await supabase.from('kanban').select('*').eq('class_member_id', userId);
+
+        if(data == null || data.length == 0) {
+            throw new Error('Kanban not found');
+        }
+
+        return data;
+    }
+
+    //get list kanban by user and month
+    async getListKanbanByUserAndMonth(userId, month) {
+        const { data, error } = await supabase.from('kanban').select('*').eq('class_member_id', userId).eq('deadline', month);
+
+        if(data == null || data.length == 0) {
+            throw new Error('Kanban not found');
+        }
+
+        return data;
+    }
+    
+    }
+
+
 
 function convertToCamelCase(obj) {
     return Object.keys(obj).reduce((acc, key) => {

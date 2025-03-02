@@ -10,5 +10,8 @@ router.post(baseUrl + '/getKanbanById', KanbanController.GetKanbanById);
 router.post(baseUrl + '/addKanban', KanbanController.AddKanban);
 
 //transaction
+router.post(baseUrl + '/updateKanbanToInProgress', KanbanController.UpdateKanbanToInProgress);
+router.post(baseUrl + '/updateKanbanToDone', KanbanController.UpdateKanbanToDone);
+router.post(baseUrl + '/deleteKanban', KanbanController.DeleteKanban);
 
 module.exports = router;

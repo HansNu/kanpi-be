@@ -25,11 +25,13 @@ class classroomSubjectService {
             }
         }
 
-        const existingSubject  = await supabase.from('classroom_subjects').select('*').eq('subject_code', req.subjectCode).eq('classroom_code', req.classroomCode);
+        const existingSubject  = await supabase.from('classroom_subjects').select('*')
+                                .eq('subject_code', req.subjectCode).eq('classroom_code', req.classroomCode)
+                                .eq('subject_name'.req.subjectName);
 
         if (existingSubject.data.length != 0) {
             return {
-                message : `Subject with code ${req.subjectCode} already exists in classroom with code ${req.classroomCode}`
+                message : `Subject already exists in classroom ${req.classroomCode}`
             }
         }
 

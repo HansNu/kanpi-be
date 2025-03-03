@@ -15,27 +15,29 @@ class kanbanService {
 
     async addKanban(kanbanData) {
         const getClassMemberData = await supabase.from('classroom_member').select('*')
-                                .eq('member_id', kanbanData.classMemberId).single();
+                                .eq('member_id', kanbanData.memberId).single();
         
         const classMemberRes = convertToCamelCase(getClassMemberData.data);
         
         const getClassroom = await classroomService.getClassroomByClassroomCode(classMemberRes);
 
         const getClassroomSubject = await classroomSubjectService.getListClassroomSubjectByClassroomCode(classMemberRes);
+        const findSubject = getClassroomSubject.find(subject => subject.subject_code === kanbanData.subjectCode);
 
-        if(getClassroomSubject == null || getClassroomSubject.length == 0) {
-            throw new Error('Subject not found in classroom');
+        if(findSubject == null || findSubject.length == 0) {
+            return 'Subject not found in classroom';
         }
 
         const { data, error } = await supabase.from('kanban').insert([
         {
             kanban_name: kanbanData.kanbanName,
             kanban_descr: kanbanData.kanbanDescr,
-            class_member_id: kanbanData.classMemberId,
+            member_id: classMemberRes.memberId,
             subject_code: kanbanData.subjectCode,
             deadline: kanbanData.deadline,
             created_by: kanbanData.createdBy,
-            updated_by: kanbanData.createdBy
+            updated_by: kanbanData.createdBy,
+            user_id: classMemberRes.userId
         }
         ]).select('*');
 
@@ -95,7 +97,7 @@ class kanbanService {
 
     //get list kanban by user
     async getListKanbanByUser(userId) {
-        const { data, error } = await supabase.from('kanban').select('*').eq('class_member_id', userId);
+        const { data, error } = await supabase.from('kanban').select('*').eq('user_id', userId);
 
         if(data == null || data.length == 0) {
             throw new Error('Kanban not found');
@@ -104,15 +106,19 @@ class kanbanService {
         return data;
     }
 
-    //get list kanban by user and month
-    async getListKanbanByUserAndMonth(userId, month) {
-        const { data, error } = await supabase.from('kanban').select('*').eq('class_member_id', userId).eq('deadline', month);
-
-        if(data == null || data.length == 0) {
-            throw new Error('Kanban not found');
+    async getListKanbanByUserAndMonth(req) {
+        const { data, error } = await supabase.rpc('get_kanban_by_user_and_month', {
+            p_user_id: req.userId,
+            p_year: req.year,
+            p_month: req.month
+        });
+    
+        if (error) {
+            console.error("Error fetching Kanban:", error);
+            return error;
         }
-
-        return data;
+    
+        return data;    
     }
     
     }

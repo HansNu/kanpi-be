@@ -8,6 +8,7 @@ const classroomMemberRoutes = require('./routes/classroomMemberRoutes');
 const classroomAdminRoutes = require('./routes/classroomAdminRoutes');
 const classroomSubjectRoutes = require('./routes/classroomSubjectRoutes');
 const kanbanRoutes = require('./routes/kanbanRoutes');
+const aaiRoutes = require('./routes/aaiRoutes');
 const supabase = require('./services/supabaseClient');
 
 // Load environment variables
@@ -38,6 +39,7 @@ app.use(baseUrl, classroomMemberRoutes);
 app.use(baseUrl, classroomAdminRoutes);
 app.use(baseUrl, classroomSubjectRoutes);
 app.use(baseUrl, kanbanRoutes);
+app.use(baseUrl, aaiRoutes);
 
 // Start the server
 app.listen(port, () => {

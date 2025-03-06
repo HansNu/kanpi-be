@@ -181,6 +181,23 @@ class classroomService {
     
         return { message: "Classroom and related data deleted successfully" };
     }
+
+    async updateClassroomName(req){
+        const classroomExist = await this.getClassroomByClassroomCode(req);
+        if (classroomExist.length == 0 || classroomExist == null){
+            return `Classroom not found`;
+        }
+
+        const {data, error} = await supabase.from('classroom')
+                                .update({classroom_name: req.classroomName})
+                                .eq('classroom_code', req.classroomCode)
+                                .select('*');
+        if(error){
+            return error
+        } else {
+            return data;
+        }
+    }
     
 }
 

@@ -60,6 +60,12 @@ class classroomController {
             data: classroomCode
         });
     }
+
+    async UpdateClassroomName(req,res) {
+        const newClassroomName = await classroomService.updateClassroomName(req.body);
+
+        res.status(200).json({newClassroomName});
+    }
 }
 
 module.exports = new classroomController();

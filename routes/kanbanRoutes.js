@@ -5,6 +5,9 @@ const baseUrl = '/kanban';
 
 //get
 router.post(baseUrl + '/getKanbanById', KanbanController.GetKanbanById);
+router.post(baseUrl + '/getListKanbanByUserId', KanbanController.GetListKanbanByUser);
+router.post(baseUrl + '/getListKanbanByUserIdAndMonth', KanbanController.GetListKanbanByUserAndMonth);
+router.post(baseUrl + '/getListKanbanByUserAndClassroom', KanbanController.GetListKanbanByUserAndClassroom);
 
 //addEdit
 router.post(baseUrl + '/addKanban', KanbanController.AddKanban);
@@ -13,8 +16,6 @@ router.post(baseUrl + '/addKanban', KanbanController.AddKanban);
 router.post(baseUrl + '/updateKanbanToInProgress', KanbanController.UpdateKanbanToInProgress);
 router.post(baseUrl + '/updateKanbanToDone', KanbanController.UpdateKanbanToDone);
 router.post(baseUrl + '/deleteKanban', KanbanController.DeleteKanban);
-router.post(baseUrl + '/getListKanbanByUserId', KanbanController.GetListKanbanByUser);
-router.post(baseUrl + '/getListKanbanByUserIdAndMonth', KanbanController.GetListKanbanByUserAndMonth);
 
 
 module.exports = router;

@@ -16,6 +16,10 @@ class kanbanService {
     async addKanban(kanbanData) {
         const getClassMemberData = await supabase.from('classroom_member').select('*')
             .eq('member_id', kanbanData.memberId).single();
+        
+        if(getClassMemberData == null || getClassMemberData.data == null){
+            return `Member Not Found`
+        }
 
         const classMemberRes = convertToCamelCase(getClassMemberData.data);
 
@@ -23,6 +27,7 @@ class kanbanService {
 
         const getClassroomSubject = await classroomSubjectService.getListClassroomSubjectByClassroomCode(classMemberRes);
         const findSubject = getClassroomSubject.find(subject => subject.subject_code === kanbanData.subjectCode);
+        const subject = convertToCamelCase(findSubject);
 
         if (findSubject == null || findSubject.length == 0) {
             return 'Subject not found in classroom';
@@ -37,15 +42,19 @@ class kanbanService {
                 deadline: kanbanData.deadline,
                 created_by: kanbanData.createdBy,
                 updated_by: kanbanData.createdBy,
-                user_id: classMemberRes.userId
+                user_id: classMemberRes.userId,
+                classroom_code: subject.classroomCode
             }
         ]).select('*');
 
         if (error) {
-            throw new Error(`Error creating kanban: ${error.message}`);
+            return error;
         }
 
-        return data[0];
+        return {
+            Kanban : data[0],
+            Message : `Kanban Added Successfully`
+        };
     }
 
     //update kanban to in progress

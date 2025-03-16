@@ -10,13 +10,23 @@ class classroomSubjectController {
         });
     }
 
-    async AddClassroomSubjectBySubjectCode(req, res) {
-        const classrooms = await classroomSubjectService.addClassroomSubjectBySubjectCode(req.body);
+    async AddClassroomSubjectBySubjectCodeAndSubjectName(req, res) {
+        const classrooms = await classroomSubjectService.addClassroomSubjectBySubjectCodeAndSubjectName(req.body);
         
         res.status(200).json({
             data: classrooms
         });
     }
+
+    async DeleteClassroomSubjectBySubjectCodeAndSubjectName(req, res) {
+        const classrooms = await classroomSubjectService.deleteClassroomSubjectBySubjectCodeAndSubjectName(req.body);
+        
+        res.status(200).json({
+            data: classrooms
+        })
+    }
+
+
 
 }
 

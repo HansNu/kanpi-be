@@ -3,7 +3,7 @@ const classroomMemberService = require('./classroomMemberService');
 const classroomService = require('./classroomService');
 const classroomSubjectService = require('./classroomSubjectService');
 const model = require('../models/index');
-const _ = require('lodash'); 
+const _ = require('lodash');
 
 class kanbanService {
 
@@ -17,14 +17,19 @@ class kanbanService {
         const getClassMemberData = await supabase.from('classroom_member').select('*')
                                 .eq('user_id', kanbanData.userId).single();
         
+        if(getClassMemberData == null || getClassMemberData.data == null){
+            return `Member Not Found`
+        }
+
         const classMemberRes = convertToCamelCase(getClassMemberData.data);
-        
+
         const getClassroom = await classroomService.getClassroomByClassroomCode(classMemberRes);
 
         const getClassroomSubject = await classroomSubjectService.getListClassroomSubjectByClassroomCode(classMemberRes);
         const findSubject = getClassroomSubject.find(subject => subject.subject_code === kanbanData.subjectCode);
+        const subject = convertToCamelCase(findSubject);
 
-        if(findSubject == null || findSubject.length == 0) {
+        if (findSubject == null || findSubject.length == 0) {
             return 'Subject not found in classroom';
         }
 
@@ -47,7 +52,10 @@ class kanbanService {
             return new Error(`Error creating kanban: ${error.message}`);
         }
 
-        return data[0];
+        return {
+            Kanban : data[0],
+            Message : `Kanban Added Successfully`
+        };
     }
 
     //update kanban to in progress
@@ -70,7 +78,7 @@ class kanbanService {
             message : 'Kanban updated to In Progress'   
         };
     }
-    
+
     //update kanban to done
     async updateKanbanToDone(kanbanId) {
         const kanbanData = await this.getKanbanById(kanbanId);
@@ -143,16 +151,29 @@ class kanbanService {
             p_year: req.year,
             p_month: req.month
         });
-    
+
         if (error) {
             console.error("Error fetching Kanban:", error);
             return error;
         }
-    
-        return data;    
+
+        return data;
     }
-    
+
+    async getListKanbanByUserAndClassroom(req) {
+        const { data, error } = await supabase.from('kanban').select('*')
+            .eq('user_id', req.userId).eq('classroom_code', req.classroomCode);
+
+        if(error){
+            return error
+        } else if (data == null || data.length == 0){
+            return `Kanban not found or doesn't exist`
+        } else{
+            return data
+        }
     }
+
+}
 
 
 

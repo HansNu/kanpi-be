@@ -7,7 +7,8 @@ const baseUrl = '/classroomSubject';
 router.post(baseUrl + '/getListClassroomSubjectByClassroomCode', classroomSubjectController.GetListClassroomSubjectByClassroomCode);
 
 //addEdit
-router.post(baseUrl + '/addClassroomSubjectBySubjectCode', classroomSubjectController.AddClassroomSubjectBySubjectCode);
+router.post(baseUrl + '/addClassroomSubjectBySubjectCodeAndSubjectName', classroomSubjectController.AddClassroomSubjectBySubjectCodeAndSubjectName);
+router.post(baseUrl + '/deleteClassroomSubjectBySubjectCodeAndSubjectName', classroomSubjectController.DeleteClassroomSubjectBySubjectCodeAndSubjectName);
 
 //transaction
 

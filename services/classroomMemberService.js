@@ -33,7 +33,7 @@ class classroomMemberService {
             classroom_code, member_name
             ),
             classroom_admin:classroom_admin!left(
-            classroom_code, admin_name
+            classroom_code, member_name
             )
         `)
         .eq('user_id', userId)

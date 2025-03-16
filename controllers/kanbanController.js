@@ -22,6 +22,12 @@ class KanbanController {
         res.status(200).json(KanbanList);
     }
 
+    async GetListKanbanByUserAndClassroom(req, res){
+        const KanbanList = await kanbanService.getListKanbanByUserAndClassroom(req.body);
+        
+        res.status(200).json(KanbanList);
+    }
+
     async AddKanban(req, res) {
         const validation = await kanbanService.addKanban(req.body);
         res.status(200).json(validation);
@@ -40,7 +46,7 @@ class KanbanController {
     async DeleteKanban(req, res) {
         const kanban = await kanbanService.deleteKanban(req.body.kanbanId);
         res.status(200).json(kanban);
-    } 
+    }
 
 }
 

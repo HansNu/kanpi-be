@@ -8,7 +8,7 @@ class kanbanObj {
             memberId: Joi.number().integer().required(),
             subjectCode: Joi.string().max(50).required(),
             deadline: Joi.date().required(),
-            kanbanStat: Joi.string().max(50).default('NEW'),
+            kanbanStat: Joi.string().max(50).default('Pending'),
             createdDate: Joi.date().default(() => new Date(), 'current timestamp'),
             updateDate: Joi.date().default(() => new Date(), 'current timestamp'),
             createdBy: Joi.string().max(100).required()

@@ -15,7 +15,7 @@ class kanbanService {
 
     async addKanban(kanbanData) {
         const getClassMemberData = await supabase.from('classroom_member').select('*')
-                                .eq('member_id', kanbanData.memberId).single();
+                                .eq('user_id', kanbanData.userId).single();
         
         const classMemberRes = convertToCamelCase(getClassMemberData.data);
         
@@ -33,16 +33,18 @@ class kanbanService {
             kanban_name: kanbanData.kanbanName,
             kanban_descr: kanbanData.kanbanDescr,
             member_id: classMemberRes.memberId,
+            user_id: kanbanData.userId,
             subject_code: kanbanData.subjectCode,
             deadline: kanbanData.deadline,
             created_by: kanbanData.createdBy,
             updated_by: kanbanData.createdBy,
-            user_id: classMemberRes.userId
+            user_id: classMemberRes.userId,
+            classroom_code: findSubject.classroom_code 
         }
         ]).select('*');
 
         if(error){
-            throw new Error(`Error creating kanban: ${error.message}`);
+            return new Error(`Error creating kanban: ${error.message}`);
         }
 
         return data[0];
@@ -53,17 +55,20 @@ class kanbanService {
         const kanbanData = await this.getKanbanById(kanbanId);
 
         if(kanbanData == null || kanbanData.length == 0) {
-            throw new Error('Kanban not found');
+            return new Error('Kanban not found');
         }
 
-        if (kanbanData.kanban_stat != 'NEW') {
-            throw new Error('Kanban Status has to be in NEW to be updated to IN PROGRESS');
+        if (kanbanData.kanban_stat != 'Pending') {
+            return new Error('Kanban Status has to be in Pending to be updated to In Progress');
         }
 
-        const { data, error } = await supabase.from('kanban').update({ kanban_stat: 'IN PROGRESS' }).eq('kanban_id', kanbanId).select('*');
+        const { data, error } = await supabase.from('kanban').update({ kanban_stat: 'In Progress' }).eq('kanban_id', kanbanId).select('*');
 
 
-        return data;
+        return {
+            Kanban : data,
+            message : 'Kanban updated to In Progress'   
+        };
     }
     
     //update kanban to done
@@ -71,16 +76,19 @@ class kanbanService {
         const kanbanData = await this.getKanbanById(kanbanId);
 
         if(kanbanData == null || kanbanData.length == 0) {
-            throw new Error('Kanban not found');
+            return new Error('Kanban not found');
         }
 
-        if (kanbanData.kanban_stat != 'IN PROGRESS') {
-            throw new Error('Kanban Status has to be in IN PROGRESS to be updated to DONE');
+        if (kanbanData.kanban_stat != 'In Progress') {
+            return new Error('Kanban Status has to be in IN PROGRESS to be updated to DONE');
         }
 
-        const { data, error } = await supabase.from('kanban').update({ kanban_stat: 'DONE' }).eq('kanban_id', kanbanId).select('*');
+        const { data, error } = await supabase.from('kanban').update({ kanban_stat: 'Done' }).eq('kanban_id', kanbanId).select('*');
         
-        return data;
+        return {
+            Kanban : data,
+            message : 'Kanban updated to Done'   
+        };
     }
 
     //delete kanban
@@ -88,7 +96,7 @@ class kanbanService {
         const kanbanData = await this.getKanbanById(kanbanId);
 
         if(kanbanData == null || kanbanData.length == 0) {
-            throw new Error('Kanban not found');
+            return new Error('Kanban not found');
         }
 
         const { data, error } = await supabase.from('kanban').delete().eq('kanban_id', kanbanId).select('*');
@@ -97,14 +105,37 @@ class kanbanService {
 
     //get list kanban by user
     async getListKanbanByUser(userId) {
-        const { data, error } = await supabase.from('kanban').select('*').eq('user_id', userId);
-
-        if(data == null || data.length == 0) {
-            throw new Error('Kanban not found');
+        const { data, error } = await supabase
+            .from('kanban')
+            .select('*')
+            .eq('user_id', userId);
+    
+        if (!data || data.length === 0) {
+            return 'Kanban not found';
         }
-
-        return data;
+    
+        // Extract all subject_code values
+        const subjectCodes = data.map(item => item.subject_code);
+    
+        // Fetch subject names for all subject_codes
+        const { data: subjects, error: subjectError } = await supabase
+            .from('classroom_subjects')
+            .select('subject_name, subject_code')
+            .in('subject_code', subjectCodes);
+    
+        if (subjectError) {
+            return 'Failed to fetch subjects';
+        }
+    
+        // Map subjects to Kanban items
+        const kanbanWithSubjects = data.map(kanban => ({
+            ...kanban,
+            subject: subjects.find(subject => subject.subject_code === kanban.subject_code) || null
+        }));
+    
+        return kanbanWithSubjects;
     }
+    
 
     async getListKanbanByUserAndMonth(req) {
         const { data, error } = await supabase.rpc('get_kanban_by_user_and_month', {

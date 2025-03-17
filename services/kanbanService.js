@@ -15,7 +15,7 @@ class kanbanService {
 
     async addKanban(kanbanData) {
         const getClassMemberData = await supabase.from('classroom_member').select('*')
-            .eq('user_id', kanbanData.userId).single();
+            .eq('user_id', kanbanData.userId).eq('classroom_code', kanbanData.classroomCode).single();
 
         if (getClassMemberData == null || getClassMemberData.data == null) {
             return `Member Not Found`

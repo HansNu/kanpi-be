@@ -15,9 +15,9 @@ class kanbanService {
 
     async addKanban(kanbanData) {
         const getClassMemberData = await supabase.from('classroom_member').select('*')
-                                .eq('user_id', kanbanData.userId).single();
-        
-        if(getClassMemberData == null || getClassMemberData.data == null){
+            .eq('user_id', kanbanData.userId).eq('classroom_code', kanbanData.classroomCode).single();
+
+        if (getClassMemberData == null || getClassMemberData.data == null) {
             return `Member Not Found`
         }
 
@@ -34,35 +34,64 @@ class kanbanService {
         }
 
         const { data, error } = await supabase.from('kanban').insert([
-        {
-            kanban_name: kanbanData.kanbanName,
-            kanban_descr: kanbanData.kanbanDescr,
-            member_id: classMemberRes.memberId,
-            user_id: kanbanData.userId,
-            subject_code: kanbanData.subjectCode,
-            deadline: kanbanData.deadline,
-            created_by: kanbanData.createdBy,
-            updated_by: kanbanData.createdBy,
-            user_id: classMemberRes.userId,
-            classroom_code: findSubject.classroom_code 
-        }
+            {
+                kanban_name: kanbanData.kanbanName,
+                kanban_descr: kanbanData.kanbanDescr,
+                member_id: classMemberRes.memberId,
+                user_id: kanbanData.userId,
+                subject_code: kanbanData.subjectCode,
+                deadline: kanbanData.deadline,
+                created_by: kanbanData.createdBy,
+                updated_by: kanbanData.createdBy,
+                user_id: classMemberRes.userId,
+                classroom_code: findSubject.classroom_code
+            }
         ]).select('*');
 
-        if(error){
+        if (error) {
             return new Error(`Error creating kanban: ${error.message}`);
         }
 
         return {
-            Kanban : data[0],
-            Message : `Kanban Added Successfully`
+            Kanban: data[0],
+            Message: `Kanban Added Successfully`
         };
     }
+
+    async editKanban(reqKanban) {
+        // Attempt to update the Kanban directly
+        const { data, error } = await supabase
+            .from('kanban')
+            .update({
+                kanban_name: reqKanban.kanbanName,
+                kanban_descr: reqKanban.kanbanDescr,
+                subject_code: reqKanban.subjectCode,
+                deadline: reqKanban.deadline
+            })
+            .eq('kanban_id', reqKanban.kanbanId)
+            .select('*'); // Ensures updated data is returned
+    
+        // Handle possible errors
+        if (error) {
+            throw new Error(`Failed to update Kanban: ${error.message}`);
+        }
+    
+        if (!data || data.length === 0) {
+            throw new Error('Kanban not found');
+        }
+    
+        return {
+            kanban: data[0],
+            message: 'Kanban updated successfully'
+        };
+    }
+    
 
     //update kanban to in progress
     async updateKanbanToInProgress(kanbanId) {
         const kanbanData = await this.getKanbanById(kanbanId);
 
-        if(kanbanData == null || kanbanData.length == 0) {
+        if (kanbanData == null || kanbanData.length == 0) {
             return new Error('Kanban not found');
         }
 
@@ -74,8 +103,8 @@ class kanbanService {
 
 
         return {
-            Kanban : data,
-            message : 'Kanban updated to In Progress'   
+            Kanban: data,
+            message: 'Kanban updated to In Progress'
         };
     }
 
@@ -83,7 +112,7 @@ class kanbanService {
     async updateKanbanToDone(kanbanId) {
         const kanbanData = await this.getKanbanById(kanbanId);
 
-        if(kanbanData == null || kanbanData.length == 0) {
+        if (kanbanData == null || kanbanData.length == 0) {
             return new Error('Kanban not found');
         }
 
@@ -92,10 +121,10 @@ class kanbanService {
         }
 
         const { data, error } = await supabase.from('kanban').update({ kanban_stat: 'Done' }).eq('kanban_id', kanbanId).select('*');
-        
+
         return {
-            Kanban : data,
-            message : 'Kanban updated to Done'   
+            Kanban: data,
+            message: 'Kanban updated to Done'
         };
     }
 
@@ -103,7 +132,7 @@ class kanbanService {
     async deleteKanban(kanbanId) {
         const kanbanData = await this.getKanbanById(kanbanId);
 
-        if(kanbanData == null || kanbanData.length == 0) {
+        if (kanbanData == null || kanbanData.length == 0) {
             return new Error('Kanban not found');
         }
 
@@ -116,7 +145,7 @@ class kanbanService {
             .from('kanban')
             .select('*')
             .eq('user_id', userId);
-    
+
         if (!data || data.length === 0) {
             return 'Kanban not found';
         }
@@ -127,7 +156,7 @@ class kanbanService {
             .from('classroom_subjects')
             .select('subject_name, subject_code')
             .in('subject_code', subjectCodes);
-    
+
         if (subjectError) {
             return 'Failed to fetch subjects';
         }
@@ -136,10 +165,10 @@ class kanbanService {
             ...kanban,
             subject: subjects.find(subject => subject.subject_code === kanban.subject_code) || null
         }));
-    
+
         return kanbanWithSubjects;
     }
-    
+
 
     async getListKanbanByUserAndMonth(req) {
         const { data, error } = await supabase.rpc('get_kanban_by_user_and_month', {

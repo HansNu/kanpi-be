@@ -1,5 +1,6 @@
 const express = require('express');
 const KanbanController = require('../controllers/kanbanController'); 
+const kanbanController = require('../controllers/kanbanController');
 const router = express.Router();
 const baseUrl = '/kanban';
 
@@ -11,6 +12,7 @@ router.post(baseUrl + '/getListKanbanByUserAndClassroom', KanbanController.GetLi
 
 //addEdit
 router.post(baseUrl + '/addKanban', KanbanController.AddKanban);
+router.post(baseUrl + '/editKanban', kanbanController.EditKanban);
 
 //transaction
 router.post(baseUrl + '/updateKanbanToInProgress', KanbanController.UpdateKanbanToInProgress);

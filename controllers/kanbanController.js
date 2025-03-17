@@ -48,6 +48,11 @@ class KanbanController {
         res.status(200).json(kanban);
     }
 
+    async EditKanban(req, res) {
+        const kanban =  await kanbanService.editKanban(req.body);
+        res.status(200).json(kanban);
+    }
+
 }
 
 module.exports = new KanbanController();

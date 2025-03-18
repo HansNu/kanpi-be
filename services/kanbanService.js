@@ -137,7 +137,10 @@ class kanbanService {
         }
 
         const { data, error } = await supabase.from('kanban').delete().eq('kanban_id', kanbanId).select('*');
-        return data;
+        return {
+            Kanban : data,
+            Message: 'Kanban Deleted Successfully'
+        };
     }
 
     async getListKanbanByUser(userId) {

@@ -169,6 +169,24 @@ class kanbanService {
             subject: subjects.find(subject => subject.subject_code === kanban.subject_code) || null
         }));
 
+        const currentDate = new Date();
+
+        for(const kanban of kanbanWithSubjects) {
+            const deadlineDt = kanban.deadline ? new Date(kanban.deadline) : null;
+        
+            let kanbanStat = kanban.kanban_stat;
+
+            if(deadlineDt && deadlineDt < currentDate && kanbanStat != 'Done') {
+                kanbanStat = 'Late';
+            }
+
+            const updateLate = await supabase.from('kanban').update({ kanban_stat: kanbanStat }).eq('kanban_id', kanban.kanban_id).select('*');
+
+            if (updateLate.error) {
+                return error('Error updating kanban status:', updateLate.error);
+            }
+        }
+
         return kanbanWithSubjects;
     }
 

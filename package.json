@@ -1,4 +1,7 @@
 {
+  "name" : "kanpi-be",
+  "version" : "1.0.0",
+  "description": "Kanpi API",
   "dependencies": {
     "@supabase/supabase-js": "^2.48.1",
     "dotenv": "^16.4.7",
@@ -9,5 +12,12 @@
     "lodash": "^4.17.21",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
+  },
+  "scripts": {
+    "start": "node api/index.js",
+    "vercel-build": "echo 'Skipping build step'"
+  },
+  "engines": {
+    "node": "18.x"
   }
 }

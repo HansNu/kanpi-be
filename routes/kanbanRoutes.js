@@ -13,11 +13,17 @@ router.post(baseUrl + '/getListKanbanByUserAndClassroom', KanbanController.GetLi
 //addEdit
 router.post(baseUrl + '/addKanban', KanbanController.AddKanban);
 router.post(baseUrl + '/editKanban', kanbanController.EditKanban);
+router.post(baseUrl + '/rejectAllKanbanByUserId', kanbanController.RejectAllKanbanByUserId);
+router.post(baseUrl + '/approveAllKanbanByUserId', kanbanController.ApproveAllKanbanByUserId);
+router.post(baseUrl + '/rejectKanbanByKanbanId', kanbanController.RejectKanbanByKanbanId);
+router.post(baseUrl + '/approveKanbanByKanbanId', kanbanController.ApproveKanbanByKanbanId);
+
 
 //transaction
 router.post(baseUrl + '/updateKanbanToInProgress', KanbanController.UpdateKanbanToInProgress);
 router.post(baseUrl + '/updateKanbanToDone', KanbanController.UpdateKanbanToDone);
 router.post(baseUrl + '/deleteKanban', KanbanController.DeleteKanban);
+router.post(baseUrl + '/getKanbanCountByUserId', KanbanController.GetKanbanCountByUserId);
 
 
 module.exports = router;

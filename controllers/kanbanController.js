@@ -53,6 +53,31 @@ class KanbanController {
         res.status(200).json(kanban);
     }
 
+    async GetKanbanCountByUserId(req, res) {
+        const kanban = await kanbanService.getKanbanCountByUserId(req.body.memberId);
+        res.status(200).json(kanban);
+    }
+
+    async RejectAllKanbanByUserId(req, res) {
+        const kanban = await kanbanService.rejectAllKanbanByUserId(req.body.userId);
+        res.status(200).json(kanban);
+    }
+
+    async ApproveAllKanbanByUserId(req, res) {
+        const kanban = await kanbanService.approveAllKanbanByUserId(req.body.userId);
+        res.status(200).json(kanban);
+    }
+
+    async RejectKanbanByKanbanId(req, res){
+        const kanban = await kanbanService.rejectKanbanByKanbanId(req.body.kanbanId);
+        res.status(200).json(kanban);
+    }
+
+    async ApproveKanbanByKanbanId(req, res){
+        const kanban = await kanbanService.approveKanbanByKanbanId(req.body.kanbanId);
+        res.status(200).json(kanban);
+    }
+
 }
 
 module.exports = new KanbanController();

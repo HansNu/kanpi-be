@@ -7,6 +7,7 @@ const classroomMemberController = require('../controllers/classroomMemberControl
 router.post(baseUrl + '/getClassroomMemberByClassroomCode', classroomMemberController.GetClassroomMemberByClassroomCode);
 router.post(baseUrl + '/getClassroomAdminByClassroomCode', classroomMemberController.GetClassroomAdminMemberByClassroomCode);
 router.post(baseUrl + '/getClassroomStudentMemberByClassroomCode', classroomMemberController.GetClassroomStudentMemberByClassroomCode);
+router.post(baseUrl + '/getClassroomMemberByMemberId', classroomMemberController.GetClassroomMemberByMemberId);
 
 //addEdit
 
@@ -14,5 +15,6 @@ router.post(baseUrl + '/getClassroomStudentMemberByClassroomCode', classroomMemb
 //transaction
 router.post(baseUrl + '/joinClassroom', classroomMemberController.JoinClassroom);
 router.post(baseUrl + '/removeClassroomMemberByCode', classroomMemberController.RemoveClassroomMemberByCode);
+router.post(baseUrl + '/updateMemberRole', classroomMemberController.UpdateMemberRole);
 
 module.exports = router;

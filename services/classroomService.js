@@ -129,8 +129,8 @@ class classroomService {
                 {
                     user_id: adminData.user_id,
                     classroom_code: classroomData.classroomCode,
-                    admin_name: adminData.name,
-                    admin_active: true,
+                    member_name: adminData.name,
+                    member_active: true,
                 }
             ])
             .select('*'); 
@@ -144,35 +144,59 @@ class classroomService {
     
 
     async deleteClassroom(classroomCode) {
-        const { error: memberError } = await supabase
+        const { data:memberData, error: memberError } = await supabase
             .from("classroom_member")
             .delete()
-            .eq("classroom_code", classroomCode);
+            .eq("classroom_code", classroomCode).select('*');
     
         if (memberError) throw new Error(`Failed to delete classroom members: ${memberError.message}`);
     
-        const { error: adminError } = await supabase
+        const { data:adminData, error: adminError } = await supabase
             .from("classroom_admin")
             .delete()
-            .eq("classroom_code", classroomCode);
+            .eq("classroom_code", classroomCode).select('*');
     
         if (adminError) throw new Error(`Failed to delete classroom admins: ${adminError.message}`);
     
-        const { error: subjectError } = await supabase
+        const { data: subjectData, error: subjectError } = await supabase
             .from("classroom_subjects")
             .delete()
-            .eq("classroom_code", classroomCode);
+            .eq("classroom_code", classroomCode).select('*');
     
         if (subjectError) throw new Error(`Failed to delete classroom subjects: ${subjectError.message}`);
     
-        const { error: classroomError } = await supabase
+        const { data: classroomData, error: classroomError } = await supabase
             .from("classroom")
             .delete()
-            .eq("classroom_code", classroomCode);
+            .eq("classroom_code", classroomCode).select('*');
     
         if (classroomError) throw new Error(`Failed to delete classroom: ${classroomError.message}`);
+
+        if((memberData == null || memberData.length == 0) && (adminData == null || adminData.length == 0) && 
+            (subjectData == null || subjectData.length == 0) && (classroomData == null || classroomData.length == 0)){
+                return {
+                    message : `Classroom ${classroomCode} doesn't exist or has been deleted`
+                }
+            }
     
         return { message: "Classroom and related data deleted successfully" };
+    }
+
+    async updateClassroomName(req){
+        const classroomExist = await this.getClassroomByClassroomCode(req);
+        if (classroomExist.length == 0 || classroomExist == null){
+            return `Classroom not found`;
+        }
+
+        const {data, error} = await supabase.from('classroom')
+                                .update({classroom_name: req.classroomName})
+                                .eq('classroom_code', req.classroomCode)
+                                .select('*');
+        if(error){
+            return error
+        } else {
+            return data;
+        }
     }
     
 }

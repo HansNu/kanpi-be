@@ -28,6 +28,12 @@ class classroomMemberController{
         });
     }
 
+    async GetClassroomMemberByMemberId(req, res) {
+        const member = await classroomMemberService.getClassroomMemberByMemberId(req.body.memberId);
+
+        res.status(200).json(member);
+    }
+
     async JoinClassroom(req, res) {
             const existingClassroom = await classroomService.getClassroomByClassroomCode(req.body); 
             if (existingClassroom == null) {
@@ -46,9 +52,14 @@ class classroomMemberController{
     async RemoveClassroomMemberByCode(req, res) {
         const removedClassroom = await classroomMemberService.removeClassroomMemberByCode(req.body);
         
+        return res.status(200).json(removedClassroom);
+    }
+
+    async UpdateMemberRole(req, res) {
+        const updatedRole = await classroomMemberService.updateMemberRole(req.body);
+
         res.status(200).json({
-            message: "Classroom member removed successfully",
-            data: removedClassroom
+            data: updatedRole
         });
     }
 }

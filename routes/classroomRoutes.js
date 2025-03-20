@@ -11,6 +11,7 @@ router.post(baseUrl + '/getClassroomByClassroomCode', classroomController.GetCla
 
 //addEdit
 router.post(baseUrl + '/addClassroom', classroomController.AddClassroom);
+router.post (baseUrl + '/updateClassroomName', classroomController.UpdateClassroomName);
 
 //transaction
 router.post(baseUrl + '/deleteClassroom', classroomController.DeleteClassroom);

@@ -33,7 +33,7 @@ class classroomMemberService {
             classroom_code, member_name
             ),
             classroom_admin:classroom_admin!left(
-            classroom_code, admin_name
+            classroom_code, member_name
             )
         `)
         .eq('user_id', userId)
@@ -89,12 +89,20 @@ class classroomMemberService {
                 classroom_code: req.classroomCode 
             })
             .select('*');
-    
+            
         if (error) {
             console.error("Failed to delete classroom member:", error);
             return null;
-        }
-        return data;
+        } else if (data == null || data.length == 0) {
+            return {
+                message : `${req.memberName} not found or has been removed from classroom ${req.classroomCode}`
+            }
+        } else {
+            return{
+                data : data,
+                message : `${req.memberName} has been removed from classroom ${req.classroomCode}`
+            } 
+        } 
     }
     
     async getClassroomAdminByClassroomCode(req) {
@@ -122,7 +130,46 @@ class classroomMemberService {
     }
 
     async updateMemberRole(req) {
-        const { data, error } = await supabase.from('classroom_member').update({ member_role: req.memberRole }).eq('classroom_code', req.classroomCode).eq('member_name', req.memberName).select('*');
+        let role = ""; 
+
+        if (req.memberPosition === "Student") {
+            role = "Member";
+        } else if (req.memberPosition.includes("Teacher")) {
+            role = "Admin";
+        }
+
+        const { data, error } = await supabase.from('classroom_member')
+                                .update({ member_role: role, member_position: req.memberPosition })
+                                .eq('classroom_code', req.classroomCode).eq('member_id', req.memberId).select('*');
+        if (error ) {
+            console.error("Failed to update classroom member role:", error);
+            return {
+                message: `Failed to update classroom member role: ${error.message}`
+            }
+        }
+        else if(data == null || data.length == 0) {
+            return {
+                message : `Member not found`
+
+            }
+        }
+        return {
+            data : data,
+            message : `Member role updated successfully`
+
+        } 
+    }
+
+    async getClassroomMemberByMemberId(memberId) {
+        const { data, error } = await supabase.from('classroom_member').select('*')
+                                .eq('member_id', memberId);
+        if (error){
+            return error
+        }
+        if(data == null || data.length == 0){
+            return `Member not found`
+        }
+
         return data;
     }
 

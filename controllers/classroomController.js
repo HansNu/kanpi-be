@@ -49,7 +49,6 @@ class classroomController {
         const deletedClassroom = await classroomService.deleteClassroom(reqByCode.code);
         
         res.status(200).json({
-            message: "Classroom deleted successfully",
             data: deletedClassroom
         });
     }
@@ -60,6 +59,12 @@ class classroomController {
         res.status(200).json({
             data: classroomCode
         });
+    }
+
+    async UpdateClassroomName(req,res) {
+        const newClassroomName = await classroomService.updateClassroomName(req.body);
+
+        res.status(200).json({newClassroomName});
     }
 }
 

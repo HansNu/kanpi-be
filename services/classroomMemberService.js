@@ -173,6 +173,19 @@ class classroomMemberService {
         return data;
     }
 
+    async getClassroomMemberByMemberIdAndClassroomCode(req){
+        const { data, error } = await supabase.from('classroom_member').select('*')
+                                .eq('member_id', req.memberId).eq('classroom_code', req.classroomCode);
+        if (error){
+            return error
+        }
+        if(data == null || data.length == 0){
+            return `Member not found`
+        }
+
+        return data;
+    }
+
 }
 
 module.exports = new classroomMemberService();

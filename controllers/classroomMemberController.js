@@ -34,6 +34,12 @@ class classroomMemberController{
         res.status(200).json(member);
     }
 
+    async GetClassroomMemberByMemberIdAndClassroomCode(req, res){
+        const member = await classroomMemberService.getClassroomMemberByMemberIdAndClassroomCode(req.body);
+
+        res.status(200).json(member);
+    } 
+
     async JoinClassroom(req, res) {
             const existingClassroom = await classroomService.getClassroomByClassroomCode(req.body); 
             if (existingClassroom == null) {

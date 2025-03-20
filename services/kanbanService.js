@@ -285,15 +285,15 @@ class kanbanService {
         };
     }
     
-    async rejectAllKanbanByUserId(userId) {
-        const checkUser = await userService.getUserByUserId(userId);
+    async rejectAllKanbanByUserId(req) {
+        const checkMember = await classroomMemberService.getClassroomMemberByMemberIdAndClassroomCode(req);
 
-        if (checkUser == null || checkUser.length == 0) {
+        if (checkMember == null || checkMember.length == 0) {
             return { message: "User not found" };
         }
 
-        const { data, error } = await supabase.from('kanban').update({ kanban_stat: 'Rejected' }).eq('user_id', userId)
-                                .eq('kanban_stat', 'Done')
+        const { data, error } = await supabase.from('kanban').update({ kanban_stat: 'Rejected' })
+                                .eq('member_id', req.memberId).eq('kanban_stat', 'Done').eq('subject_code', req.subjectCode)
                                 .select('*');
         if(error){
             return error
@@ -304,19 +304,19 @@ class kanbanService {
 
         return {
             Kanban: data,
-            message: `All Kanban from user ${checkUser.user_name} have been rejected`
+            message: `All Kanban from user ${checkMember.member_name} have been Rejected`
         }
     }
 
-    async approveAllKanbanByUserId(userId) {
-        const checkUser = await userService.getUserByUserId(userId);
+    async approveAllKanbanByUserId(req) {
+        const checkMember = await classroomMemberService.getClassroomMemberByMemberIdAndClassroomCode(req);
 
-        if (checkUser == null || checkUser.length == 0) {
+        if (checkMember == null || checkMember.length == 0) {
             return { message: "User not found" };
         }
 
-        const { data, error } = await supabase.from('kanban').update({ kanban_stat: 'Approved' }).eq('user_id', userId)
-                                .eq('kanban_stat', 'Done')
+        const { data, error } = await supabase.from('kanban').update({ kanban_stat: 'Approved' })
+                                .eq('member_id', req.memberId).eq('kanban_stat', 'Done').eq('subject_code', req.subjectCode)
                                 .select('*');
         if(error){
             return error
@@ -327,7 +327,7 @@ class kanbanService {
 
         return {
             Kanban: data,
-            message: `All Kanban from user ${checkUser.user_name} have been Approved`
+            message: `All Kanban from user ${checkMember.member_name} have been Approved`
         }
     }
 

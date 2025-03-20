@@ -8,6 +8,7 @@ router.post(baseUrl + '/getClassroomMemberByClassroomCode', classroomMemberContr
 router.post(baseUrl + '/getClassroomAdminByClassroomCode', classroomMemberController.GetClassroomAdminMemberByClassroomCode);
 router.post(baseUrl + '/getClassroomStudentMemberByClassroomCode', classroomMemberController.GetClassroomStudentMemberByClassroomCode);
 router.post(baseUrl + '/getClassroomMemberByMemberId', classroomMemberController.GetClassroomMemberByMemberId);
+router.post(baseUrl + '/getClassroomMemberByMemberIdAndClassroomCode', classroomMemberController.GetClassroomMemberByMemberIdAndClassroomCode);
 
 //addEdit
 

@@ -59,12 +59,12 @@ class KanbanController {
     }
 
     async RejectAllKanbanByUserId(req, res) {
-        const kanban = await kanbanService.rejectAllKanbanByUserId(req.body.userId);
+        const kanban = await kanbanService.rejectAllKanbanByUserId(req.body);
         res.status(200).json(kanban);
     }
 
     async ApproveAllKanbanByUserId(req, res) {
-        const kanban = await kanbanService.approveAllKanbanByUserId(req.body.userId);
+        const kanban = await kanbanService.approveAllKanbanByUserId(req.body);
         res.status(200).json(kanban);
     }
 

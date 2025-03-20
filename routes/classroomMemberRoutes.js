@@ -7,6 +7,7 @@ const classroomMemberController = require('../controllers/classroomMemberControl
 router.post(baseUrl + '/getClassroomMemberByClassroomCode', classroomMemberController.GetClassroomMemberByClassroomCode);
 router.post(baseUrl + '/getClassroomAdminByClassroomCode', classroomMemberController.GetClassroomAdminMemberByClassroomCode);
 router.post(baseUrl + '/getClassroomStudentMemberByClassroomCode', classroomMemberController.GetClassroomStudentMemberByClassroomCode);
+router.post(baseUrl + '/getClassroomMemberByMemberId', classroomMemberController.GetClassroomMemberByMemberId);
 
 //addEdit
 

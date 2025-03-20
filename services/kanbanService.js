@@ -4,6 +4,7 @@ const classroomService = require('./classroomService');
 const classroomSubjectService = require('./classroomSubjectService');
 const model = require('../models/index');
 const _ = require('lodash');
+const userService = require('./userService');
 
 class kanbanService {
 
@@ -246,6 +247,133 @@ class kanbanService {
             return kanbanWithSubjects;
     }
 
+    async getKanbanCountByUserId(memberId) {
+        const existingMember = await classroomMemberService.getClassroomMemberByMemberId(memberId);
+        if (!existingMember) {
+            return { error: "User Not Found" };
+        }
+    
+        const statuses = ["Pending", "In Progress", "Done", "Approved", "Rejected", "Late"];
+        
+        const kanbanCounts = {
+            Pending: 0,
+            "In Progress": 0,
+            Done: 0,
+            Approved: 0,
+            Rejected: 0,
+            Late: 0 
+        };
+    
+        for (const status of statuses) {
+            const { count, error } = await supabase
+                .from("kanban")
+                .select("*", { count: "exact" })
+                .eq("member_id", memberId)
+                .eq("kanban_stat", status);
+    
+            if (error) {
+                return console.error(`Error fetching count for status "${status}":`, error);
+                continue; 
+            }
+    
+            kanbanCounts[status] = count; 
+        }
+    
+        return {
+            user: existingMember,  
+            kanbanCounts          
+        };
+    }
+    
+    async rejectAllKanbanByUserId(userId) {
+        const checkUser = await userService.getUserByUserId(userId);
+
+        if (checkUser == null || checkUser.length == 0) {
+            return { message: "User not found" };
+        }
+
+        const { data, error } = await supabase.from('kanban').update({ kanban_stat: 'Rejected' }).eq('user_id', userId)
+                                .eq('kanban_stat', 'Done')
+                                .select('*');
+        if(error){
+            return error
+        }
+        if(data == null || data.length == 0){
+            return { message: "No Kanban to Reject" };
+        }
+
+        return {
+            Kanban: data,
+            message: `All Kanban from user ${checkUser.user_name} have been rejected`
+        }
+    }
+
+    async approveAllKanbanByUserId(userId) {
+        const checkUser = await userService.getUserByUserId(userId);
+
+        if (checkUser == null || checkUser.length == 0) {
+            return { message: "User not found" };
+        }
+
+        const { data, error } = await supabase.from('kanban').update({ kanban_stat: 'Approved' }).eq('user_id', userId)
+                                .eq('kanban_stat', 'Done')
+                                .select('*');
+        if(error){
+            return error
+        }
+        if(data == null || data.length == 0){
+            return { message: "No Kanban to Approve" };
+        }
+
+        return {
+            Kanban: data,
+            message: `All Kanban from user ${checkUser.user_name} have been Approved`
+        }
+    }
+
+    async rejectKanbanByKanbanId(kanbanId) {
+        const existingKanban = await this.getKanbanById(kanbanId);
+        if (!existingKanban){
+            return { message: "Kanban not found" };
+        }
+
+        const { data, error } = await supabase.from('kanban').update({ kanban_stat: 'Rejected' }).eq('kanban_id', kanbanId)
+                                .eq('kanban_stat', 'Done')
+                                .select('*');
+        if(error){
+            return error
+        }
+        if(data == null || data.length == 0){
+            return { message: "No Kanban to Reject" };
+        }
+
+        return {
+            Kanban: data,
+            message: `Kanban ${existingKanban.subject_name} have been Rejected`
+        }
+    }
+    
+    async approveKanbanByKanbanId(kanbanId) {
+        const existingKanban = await this.getKanbanById(kanbanId);
+        if (!existingKanban){
+            return { message: "Kanban not found" };
+        }
+
+        const { data, error } = await supabase.from('kanban').update({ kanban_stat: 'Approved' }).eq('kanban_id', kanbanId)
+                                .eq('kanban_stat', 'Done')
+                                .select('*');
+        if(error){
+            return error
+        }
+        if(data == null || data.length == 0){
+            return { message: "No Kanban to Approve" };
+        }
+
+        return {
+            Kanban: data,
+            message: `Kanban ${existingKanban.subject_name} have been Approved`
+        }
+    }
 }
 
 

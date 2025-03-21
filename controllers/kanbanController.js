@@ -58,6 +58,11 @@ class KanbanController {
         res.status(200).json(kanban);
     }
 
+    async GetKanbanByClassroomCode(req, res){
+        const kanban = await kanbanService.getListKanbanByClassroomCode(req.body);
+        res.status(200).json(kanban);
+    }
+
     async RejectAllKanbanByUserId(req, res) {
         const kanban = await kanbanService.rejectAllKanbanByUserId(req.body);
         res.status(200).json(kanban);

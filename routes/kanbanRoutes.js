@@ -9,6 +9,7 @@ router.post(baseUrl + '/getKanbanById', KanbanController.GetKanbanById);
 router.post(baseUrl + '/getListKanbanByUserId', KanbanController.GetListKanbanByUser);
 router.post(baseUrl + '/getListKanbanByUserIdAndMonth', KanbanController.GetListKanbanByUserAndMonth);
 router.post(baseUrl + '/getListKanbanByUserAndClassroom', KanbanController.GetListKanbanByUserAndClassroom);
+router.post(baseUrl + '/getKanbanByClassroomCode', KanbanController.GetKanbanByClassroomCode);
 
 //addEdit
 router.post(baseUrl + '/addKanban', KanbanController.AddKanban);

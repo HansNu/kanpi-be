@@ -4,7 +4,7 @@ const baseUrl = '/classroomAdmin';
 const classroomAdminController = require('../controllers/classroomAdminController');
 
 //get
-router.post(baseUrl + '/getSuperAdminByClassroomCodeAndUserId', classroomAdminController.GetSuperAdminByClassroomCodeAndUserId);
+router.post(baseUrl + '/getAdminByClassroomCodeAndUserId', classroomAdminController.GetAdminByClassroomCodeAndUserId);
 
 //addEdit
 

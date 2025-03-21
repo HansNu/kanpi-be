@@ -4,15 +4,24 @@ const model = require('../models/index');
 
 class classroomAdminService {
 
-    async getSuperAdminByClassroomCodeAndUserId(req) {
-        const { data, error } = await supabase.from('classroom_admin').select('*').eq('classroom_code', req.classroomCode).eq('user_id', req.userId);
-        if (data == null || data.length == 0) {
-            return {
-                message : `Classroom does not exists or there are no admins in classroom with code ${req.classroomCode}`
+    async getAdminByClassroomCodeAndUserId(req) {
+        const { data:superAdmin } = await supabase.from('classroom_admin').select('*').eq('classroom_code', req.classroomCode).eq('user_id', req.userId);
+        if (superAdmin == null || superAdmin.length == 0) {
+            const {data:admin } = await supabase.from('classroom_member').select('*').eq('classroom_code', req.classroomCode).eq('member_role', 'Admin').eq('user_id', req.userId);
+
+            if(admin == null || admin.length == 0) {
+                return {
+                    message : `Classroom does not exists or there are no admins in classroom with code ${req.classroomCode}`
+                }
+                
+            } else {
+                return admin;
             }
+            
+        } else {
+            return superAdmin;
         }
 
-        return data;
     }
 
     async getClassroomSuperAdminByClassroomCode(req) {

@@ -284,6 +284,17 @@ class kanbanService {
             kanbanCounts          
         };
     }
+
+    async getListKanbanByClassroomCode(req){
+        const existingClass = await classroomService.getClassroomByClassroomCode(req);
+        
+        const {data, error} = await supabase.from('kanban').select('*').eq('classroom_code', req.classroomCode);
+        if(data == null || data.length == 0){
+            return `No Kanban found in classroom ${existingClass.classroom_name}`;
+        }
+
+        return data;
+    }
     
     async rejectAllKanbanByUserId(req) {
         const checkMember = await classroomMemberService.getClassroomMemberByMemberIdAndClassroomCode(req);

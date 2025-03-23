@@ -293,7 +293,23 @@ class kanbanService {
             return `No Kanban found in classroom ${existingClass.classroom_name}`;
         }
 
-        return data;
+        const subjectCodes = data.map(item => item.subject_code);
+    
+            const { data: subjects, error: subjectError } = await supabase
+                .from('classroom_subjects')
+                .select('subject_name, subject_code')
+                .in('subject_code', subjectCodes);
+        
+            if (subjectError) {
+                return 'Failed to fetch subjects';
+            }
+        
+            const kanbanWithSubjects = data.map(kanban => ({
+                ...kanban,
+                subject: subjects.find(subject => subject.subject_code === kanban.subject_code) || null
+            }));
+        
+            return kanbanWithSubjects;
     }
     
     async rejectAllKanbanByUserId(req) {

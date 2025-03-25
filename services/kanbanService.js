@@ -314,26 +314,34 @@ class kanbanService {
     
     async rejectAllKanbanByUserId(req) {
         const checkMember = await classroomMemberService.getClassroomMemberByMemberIdAndClassroomCode(req);
-
-        if (checkMember == null || checkMember.length == 0) {
+    
+        if (!checkMember || checkMember.length === 0) {
             return { message: "User not found" };
         }
-
-        const { data, error } = await supabase.from('kanban').update({ kanban_stat: 'Rejected' })
-                                .eq('member_id', req.memberId).eq('kanban_stat', 'Done').eq('subject_code', req.subjectCode)
-                                .select('*');
-        if(error){
-            return error
+    
+        let query = supabase.from('kanban')
+            .update({ kanban_stat: 'Rejected' })
+            .eq('member_id', req.memberId)
+            .eq('kanban_stat', 'Done');
+    
+        if (req.subjectCode || req.subjectCode != '') {
+            query = query.eq('subject_code', req.subjectCode);
         }
-        if(data == null || data.length == 0){
+    
+        const { data, error } = await query.select('*');
+    
+        if (error) return error;
+    
+        if (!data || data.length === 0) {
             return { message: "No Kanban to Reject" };
         }
-
+    
         return {
             Kanban: data,
             message: `All Kanban from user ${checkMember.member_name} have been Rejected`
-        }
+        };
     }
+    
 
     async approveAllKanbanByUserId(req) {
         const checkMember = await classroomMemberService.getClassroomMemberByMemberIdAndClassroomCode(req);

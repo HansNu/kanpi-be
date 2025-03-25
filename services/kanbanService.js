@@ -350,9 +350,16 @@ class kanbanService {
             return { message: "User not found" };
         }
 
-        const { data, error } = await supabase.from('kanban').update({ kanban_stat: 'Approved' })
-                                .eq('member_id', req.memberId).eq('kanban_stat', 'Done').eq('subject_code', req.subjectCode)
-                                .select('*');
+        let query = supabase.from('kanban')
+            .update({ kanban_stat: 'Approved' })
+            .eq('member_id', req.memberId)
+            .eq('kanban_stat', 'Done');
+    
+        if (req.subjectCode || req.subjectCode != '') {
+            query = query.eq('subject_code', req.subjectCode);
+        }
+    
+        const { data, error } = await query.select('*');
         if(error){
             return error
         }

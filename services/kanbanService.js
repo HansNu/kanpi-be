@@ -338,7 +338,7 @@ class kanbanService {
     
         return {
             Kanban: data,
-            message: `All Kanban from user ${checkMember.member_name} have been Rejected`
+            message: `All Kanban from user ${checkMember[0].member_name} have been Rejected`
         };
     }
     
@@ -369,7 +369,7 @@ class kanbanService {
 
         return {
             Kanban: data,
-            message: `All Kanban from user ${checkMember.member_name} have been Approved`
+            message: `All Kanban from user ${checkMember[0].member_name} have been Approved`
         }
     }
 

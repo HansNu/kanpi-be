@@ -9,6 +9,7 @@ router.post(baseUrl + '/getAaiByAaiCode', aaiController.GetAaiByAaiCode);
 
 //addEdit
 router.post(baseUrl + '/addAai', aaiController.AddAai);
+router.post(baseUrl + '/addAaiGrade', aaiController.AddAaiGrade);
 
 
 //transaction

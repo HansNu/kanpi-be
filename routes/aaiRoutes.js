@@ -6,6 +6,7 @@ const aaiController = require('../controllers/aaiController');
 //get
 router.post(baseUrl + '/getGeneralAaiByClassroomCode', aaiController.GetGeneralAaiByClassroomCode);
 router.post(baseUrl + '/getAaiByAaiCode', aaiController.GetAaiByAaiCode);
+router.post(baseUrl + '/getAaiGrades', aaiController.GetAaiGrades);
 
 //addEdit
 router.post(baseUrl + '/addAai', aaiController.AddAai);

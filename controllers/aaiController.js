@@ -20,6 +20,12 @@ class aaiController{
         res.status(200).json(aai);
     }
 
+    async GetAaiGrades(req, res) {
+        const aaiGrades = await aaiService.getAaiGrades();
+
+        res.status(200).json(aaiGrades);
+    }
+
     async AddAaiGrade(req, res) {
         const aaiGrade = await aaiService.addAaiGrade(req.body);
 

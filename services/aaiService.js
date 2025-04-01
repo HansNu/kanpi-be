@@ -53,39 +53,36 @@ class aaiService{
         }
     }
 
+    async getAaiGrades(){
+        const {data, error} = await supabase.from('subject_aai_grades').select('*');
+
+        if(error){
+            return error;
+        } else {
+            return data;
+        }
+    }
+
 
     async addAaiGrade(req) {
-        if (!Array.isArray(req) || req.length === 0) {
-            return { message: "Invalid input format, expected a non-empty array" };
+        if (!req || !Array.isArray(req.grades) || req.grades.length === 0) {
+            return { message: "Invalid input format, expected a non-empty grades array" };
         }
     
-        const uniqueAaiCodes = [...new Set(req.map(item => item.aaiCode))];
-    
-        if (uniqueAaiCodes.length > 1) {
-            return { message: "All aaiCode values must be the same" };
-        }
-        let getCode = req[0];
-        const checkAai = await this.getAaiByAaiCode(getCode);
-    
-        if (!checkAai || checkAai.length === 0) {
-            return { message: `Aai with code ${req.aaiCode} not found` };
+        const userData = await userService.getUserByUserId(req.userId);
+        if (!userData) {
+            return { message: "User not found" };
         }
     
-        if (!Array.isArray(req)) {
-            return { message: "Invalid input format, expected an array" };
-        }
-    
-        const insertData = req.map(item => ({
+        const insertData = req.grades.map(item => ({
             subject_aai_id: item.subjectAaiId,
-            aai_code: checkAai[0].aai_code, 
             grade: item.grade,
             min_score: item.minScore,
-            max_score: item.maxScore,
+            max_score: item.maxScore || null,
             descr: item.descr,
-            created_by: item.createdBy,
-            updated_by: item.updatedBy,
-            updated_date: item.updatedDate,
-            operator : item.operator
+            created_by: userData.name,
+            updated_by: userData.name,
+            operator: item.operator
         }));
     
         const { data, error } = await supabase
@@ -94,11 +91,12 @@ class aaiService{
             .select("*");
     
         if (error) {
-            return { message: `Failed to add aai grade: ${error.message}` };
+            return { message: `Failed to add AAI grade: ${error.message}` };
         }
     
         return data;
     }
+    
     
 
 }

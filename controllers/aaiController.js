@@ -14,14 +14,14 @@ class aaiController{
         res.status(200).json(generalAai);
     }
 
-    async GetAaiByAaiCode(req, res) {
-        const aai = await aaiService.getAaiByAaiCode(req.body);
+    async GetAaiByClassroomCode(req, res) {
+        const aai = await aaiService.getAaiByClassroomCode(req.body);
 
         res.status(200).json(aai);
     }
 
-    async GetAaiGrades(req, res) {
-        const aaiGrades = await aaiService.getAaiGrades();
+    async GetAaiGradesByClassroomCode(req, res) {
+        const aaiGrades = await aaiService.getAaiGradesByClassroomCode(req.body);
 
         res.status(200).json(aaiGrades);
     }

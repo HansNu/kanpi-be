@@ -1,5 +1,6 @@
 const supabase = require('./supabaseClient');
 const userService = require('../services/userService');
+const { map } = require('lodash');
 
 class aaiService{
 
@@ -10,7 +11,6 @@ class aaiService{
                                 .insert([
                                     {
                                         subject_code : req.subjectCode,
-                                        aai_code : req.aaiCode,
                                         aai_name : req.aaiName,
                                         aai_descr : req.aaiDescr,
                                         aai_weight : req.aaiWeight,
@@ -43,8 +43,8 @@ class aaiService{
     }
 
     //getaaibyaaicode
-    async getAaiByAaiCode(req){
-        const {data, error} = await supabase.from('subject_academic_achievement_index').select('*').eq('aai_code', req.aaiCode);
+    async getAaiByClassroomCode(req){
+        const {data, error} = await supabase.from('subject_academic_achievement_index').select('*').eq('classroom_code', req.ClassroomCode);
 
         if(error){
             return error;
@@ -53,8 +53,8 @@ class aaiService{
         }
     }
 
-    async getAaiGrades(){
-        const {data, error} = await supabase.from('subject_aai_grades').select('*');
+    async getAaiGradesByClassroomCode(req){
+        const {data, error} = await supabase.from('subject_aai_grades').select('*').eq('classroom_code', req.classroomCode);
 
         if(error){
             return error;
@@ -65,24 +65,24 @@ class aaiService{
 
 
     async addAaiGrade(req) {
-        if (!req || !Array.isArray(req.grades) || req.grades.length === 0) {
+        if (!req || !Array.isArray(req) || req.length === 0) {
             return { message: "Invalid input format, expected a non-empty grades array" };
         }
     
-        const userData = await userService.getUserByUserId(req.userId);
+        const userData = await userService.getUserByUserId(req[0].userId);
         if (!userData) {
             return { message: "User not found" };
         }
     
-        const insertData = req.grades.map(item => ({
-            subject_aai_id: item.subjectAaiId,
+        const insertData = req.map(item => ({
+            classroom_code: item.classroomCode,
             grade: item.grade,
             min_score: item.minScore,
             max_score: item.maxScore || null,
             descr: item.descr,
             created_by: userData.name,
             updated_by: userData.name,
-            operator: item.operator
+            operator: item.operator,
         }));
     
         const { data, error } = await supabase

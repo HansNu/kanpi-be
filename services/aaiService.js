@@ -94,7 +94,10 @@ class aaiService{
             return { message: `Failed to add AAI grade: ${error.message}` };
         }
     
-        return data;
+        return {
+            Message : `Grades added successfully`,
+            Grades : data
+        };
     }
     
     

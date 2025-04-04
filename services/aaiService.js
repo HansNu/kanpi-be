@@ -1,5 +1,6 @@
 const supabase = require('./supabaseClient');
 const userService = require('../services/userService');
+const classroomService = require('../services/classroomService');
 const { map } = require('lodash');
 
 class aaiService{
@@ -44,6 +45,7 @@ class aaiService{
 
     //getaaibyaaicode
     async getAaiByClassroomCode(req){
+        const existingClass = await classroomService.getClassroomByClassroomCode(req);
         const {data, error} = await supabase.from('subject_academic_achievement_index').select('*').eq('classroom_code', req.ClassroomCode);
 
         if(error){
@@ -54,6 +56,7 @@ class aaiService{
     }
 
     async getAaiGradesByClassroomCode(req){
+        const existingClass = await classroomService.getClassroomByClassroomCode(req.classroomCode);
         const {data, error} = await supabase.from('subject_aai_grades').select('*').eq('classroom_code', req.classroomCode);
 
         if(error){
@@ -98,6 +101,54 @@ class aaiService{
             Message : `Grades added successfully`,
             Grades : data
         };
+    }
+
+    async editAaiGrade(req) {
+        if (!req || !Array.isArray(req) || req.length === 0) {
+            return { message: "Invalid input format, expected a non-empty grades array" };
+        }
+
+        const existingAaiGrade = await this.getAaiGradesByClassroomCode(req[0]);
+        if(existingAaiGrade.length == 0 || existingAaiGrade == null){
+            return `Grades in Classroom ${req[0].classroomCode} doesn't exist`
+        }
+    
+        const userData = await userService.getUserByUserId(req[0].userId);
+        if (!userData) {
+            return { message: "User not found" };
+        }
+    
+        for (let i = 0; i < req.length; i++) {
+            const item = req[i];
+        
+            const updateData = {
+                classroom_code: item.classroomCode,
+                grade: item.grade,
+                min_score: item.minScore,
+                max_score: item.maxScore || null,
+                descr: item.descr,
+                created_by: userData.name,
+                updated_by: userData.name,
+                operator: item.operator
+            };
+        
+            const { data, error } = await supabase
+                .from("subject_aai_grades")
+                .update(updateData)
+                .eq("subject_aai_grades_id", item.subjectAaiGradesId)
+                .select('*');
+        
+                if (error) {
+                    return { message: `Failed to update AAI grade: ${error.message}` };
+                }
+            
+                return {
+                    Message : `Grades updated successfully`,
+                    Grades : data
+                };
+        }
+        
+    
     }
     
     

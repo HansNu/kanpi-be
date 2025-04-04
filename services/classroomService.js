@@ -86,7 +86,7 @@ class classroomService {
     }
 
     async getClassroomByClassroomCode(reqCode) {
-        const classCode = await supabase.from('classroom').select('*').eq('classroom_code', reqCode.classroomCode);
+        const classCode = await supabase.from('classroom').select('*').eq('classroom_code', reqCode);
 
         if(classCode == null || classCode.length == 0){
             return {

@@ -15,6 +15,7 @@ router.post(baseUrl + '/addAaiGrade', aaiController.AddAaiGrade);
 
 
 //transaction
+router.post(baseUrl + '/deleteAaiGrade', aaiController.DeleteAaiGrade);
 
 
 module.exports = router;

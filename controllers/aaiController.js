@@ -38,6 +38,12 @@ class aaiController{
         res.status(200).json(aaiGrade);
     }
 
+    async DeleteAaiGrade(req, res) {
+        const aaiGrade = await aaiService.deleteAaiGrade(req.body);
+
+        res.status(200).json(aaiGrade);
+    }
+
 }
 
 module.exports = new aaiController();

@@ -58,7 +58,7 @@ class aaiService{
     async getAaiGradesByClassroomCode(req){
         const existingClass = await classroomService.getClassroomByClassroomCode(req);
         const {data, error} = await supabase.from('subject_aai_grades').select('*').eq('classroom_code', req.classroomCode);
-
+    
         if(error){
             return error;
         } else {
@@ -148,10 +148,30 @@ class aaiService{
                 };
         }
         
-    
     }
+
+    async deleteAaiGrade(req) {
+        const existingGrades = await this.getAaiGradesByClassroomCode(req);
     
+        if (!existingGrades || existingGrades.length === 0) {
+            return `No Grading Found With Classroom Code ${req.classroomCode}`;
+        }
     
+        const { data, error } = await supabase
+            .from('subject_aai_grades')
+            .delete()
+            .eq('classroom_code', req.classroomCode)
+            .eq('subject_aai_grades_id', req.subjectAaiGradesId);
+    
+        if (error) {
+            return error;
+        }
+    
+        return {
+            message: 'Grades Deleted Successfully',
+        };
+    }
+        
 
 }
 

@@ -10,6 +10,7 @@ router.post(baseUrl + '/getAaiGradesByClassroomCode', aaiController.GetAaiGrades
 
 //addEdit
 router.post(baseUrl + '/addAai', aaiController.AddAai);
+router.post(baseUrl + '/editAai', aaiController.EditAai);
 router.post(baseUrl + '/editAaiGrade', aaiController.EditAaiGrade);
 router.post(baseUrl + '/addAaiGrade', aaiController.AddAaiGrade);
 

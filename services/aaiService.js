@@ -8,6 +8,22 @@ class aaiService{
     async addAai (req){
         const userData = await userService.getUserByUserId(req.userId);
 
+        const isMaxWeight = await this.getAaiByClassroomCode(req);
+        if(isMaxWeight == null || isMaxWeight.length == 0){
+            return `AAI Of Class ${req.classroomCode} Not Found`
+        }
+
+        let totalClassAaiWeight = 0;
+        
+        for(let i = 0; i<isMaxWeight.length; i++){
+            const aaiWeight = isMaxWeight[i].aai_weight || 0;
+            totalClassAaiWeight += aaiWeight;
+        }
+
+        if(totalClassAaiWeight > 1) {
+            return `Total Weight Of A Class Must Not Exceed 1, Current AAI Total Weight : ${totalClassAaiWeight}`;
+        }
+
         const {data, error} = await supabase.from('subject_academic_achievement_index')
                                 .insert([
                                     {
@@ -26,7 +42,62 @@ class aaiService{
         if (data == null || data.length == 0){
             return {message : `Failed to add aai : ${error}`}
         }
-        return data;
+        return {
+            AAI :data,
+            Message : `Academic Achievement Index(AAI) Added Successfully` 
+        };
+    }
+
+    async editAai (req){
+        const userData = await userService.getUserByUserId(req.userId);
+
+        const isMaxWeight = await this.getAaiByClassroomCode(req);
+        if(isMaxWeight == null || isMaxWeight.length == 0){
+            return `AAI Of Class ${req.classroomCode} Not Found`
+        }
+
+        let totalClassAaiWeight = 0;
+        
+        for(let i = 0; i<isMaxWeight.length; i++){
+            if(isMaxWeight[i].subject_aai_id == req.subjectAaiId) {
+                continue;
+            }
+            const aaiWeight = isMaxWeight[i].aai_weight || 0;
+            totalClassAaiWeight += aaiWeight;
+        }
+
+        const newTotalWeight = totalClassAaiWeight + req.aaiWeight;
+        if (newTotalWeight > 1.0) {
+            return {
+                error: true,
+                message: `Updated AAI Weight = ${newTotalWeight}, Total Updated Weight Cannot Exceed 1`,
+            };
+        }    
+
+        const {data, error} = await supabase.from('subject_academic_achievement_index')
+                                .update([
+                                    {
+                                        subject_code : req.subjectCode,
+                                        aai_name : req.aaiName,
+                                        aai_descr : req.aaiDescr,
+                                        aai_weight : req.aaiWeight,
+                                        aai_active : true,
+                                        created_by : userData.name,
+                                        updated_by : userData.name,
+                                        aai_type : req.aaiType,
+                                        classroom_code : req.classroomCode
+                                    }
+                                ])
+                                .eq('subject_aai_id', req.subjectAaiId)
+                                .select('*');
+        
+        if (data == null || data.length == 0){
+            return {message : `Failed to add aai : ${error}`}
+        }
+        return {
+            AAI :data,
+            Message : `Academic Achievement Index(AAI) Added Successfully` 
+        };
     }
 
     async getGeneralAaiByClassroomCode(req) {
@@ -43,7 +114,6 @@ class aaiService{
         }
     }
 
-    //getaaibyaaicode
     async getAaiByClassroomCode(req){
         const existingClass = await classroomService.getClassroomByClassroomCode(req);
         const {data, error} = await supabase.from('subject_academic_achievement_index').select('*').eq('classroom_code', req.classroomCode);

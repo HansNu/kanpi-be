@@ -8,6 +8,12 @@ class aaiController{
         res.status(200).json(aaiObj);
     }
 
+    async EditAai(req, res){
+        const aaiObj = await aaiService.editAai(req.body);
+
+        res.status(200).json(aaiObj);
+    }
+
     async GetGeneralAaiByClassroomCode(req, res) {
         const generalAai = await aaiService.getGeneralAaiByClassroomCode(req.body);
 

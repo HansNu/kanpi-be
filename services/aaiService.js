@@ -17,10 +17,18 @@ class aaiService{
             totalClassAaiWeight += aaiWeight;
         }
 
-        if(totalClassAaiWeight > 1) {
+        if(totalClassAaiWeight > 1.0) {
             return {
                 Message : `Total Weight Of A Class Must Not Exceed 1, Current AAI Total Weight : ${totalClassAaiWeight}`
             }        
+        }
+
+        const newTotalAaiWeight = totalClassAaiWeight + req.aaiWeight 
+        if (newTotalAaiWeight > 1.0 ){
+            return {
+                Message : `The New AAI Weight Exceeds The Maximum AAI Weight of 1`,
+                NewTotalWeight : newTotalAaiWeight
+            }
         }
 
         const {data, error} = await supabase.from('subject_academic_achievement_index')

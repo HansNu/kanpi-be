@@ -9,9 +9,6 @@ class aaiService{
         const userData = await userService.getUserByUserId(req.userId);
 
         const isMaxWeight = await this.getAaiByClassroomCode(req);
-        if(isMaxWeight == null || isMaxWeight.length == 0){
-            return `AAI Of Class ${req.classroomCode} Not Found`
-        }
 
         let totalClassAaiWeight = 0;
         
@@ -21,7 +18,9 @@ class aaiService{
         }
 
         if(totalClassAaiWeight > 1) {
-            return `Total Weight Of A Class Must Not Exceed 1, Current AAI Total Weight : ${totalClassAaiWeight}`;
+            return {
+                Message : `Total Weight Of A Class Must Not Exceed 1, Current AAI Total Weight : ${totalClassAaiWeight}`
+            }        
         }
 
         const {data, error} = await supabase.from('subject_academic_achievement_index')
@@ -53,7 +52,7 @@ class aaiService{
 
         const isMaxWeight = await this.getAaiByClassroomCode(req);
         if(isMaxWeight == null || isMaxWeight.length == 0){
-            return `AAI Of Class ${req.classroomCode} Not Found`
+            return {Message : `AAI Of Class ${req.classroomCode} Not Found`}
         }
 
         let totalClassAaiWeight = 0;

@@ -76,8 +76,7 @@ class aaiService{
         const newTotalWeight = totalClassAaiWeight + req.aaiWeight;
         if (newTotalWeight > 1.0) {
             return {
-                error: true,
-                message: `Updated AAI Weight = ${newTotalWeight}, Total Updated Weight Cannot Exceed 1`,
+                Message: `Updated AAI Weight = ${newTotalWeight}, Total Updated Weight Cannot Exceed 1`,
             };
         }    
 
@@ -99,7 +98,7 @@ class aaiService{
                                 .select('*');
         
         if (data == null || data.length == 0){
-            return {message : `Failed to add aai : ${error}`}
+            return {Message : `Failed to add aai : ${error}`}
         }
         return {
             AAI :data,
@@ -118,6 +117,20 @@ class aaiService{
             return error;
         } else {
             return data;
+        }
+    }
+
+    async deleteAai(req){
+        const existingAai = await this.getAaiByClassroomCode(req);
+        if (existingAai == null || existingAai.length == 0){
+            return {
+                Message : `AAI Of Class ${req.classroomCode} Not Found`
+            }
+        }
+        const {data, error} = await supabase.from('subject_academic_achievement_index').delete().eq('subject_aai_id', req.subjectAaiId).eq('classroom_code', req.classroomCode).select('*');
+        return {
+            Message : 'AAI Deleted Successfully',
+            AAI : data
         }
     }
 

@@ -14,6 +14,12 @@ class aaiController{
         res.status(200).json(aaiObj);
     }
 
+    async DeleteAai(req, res){
+        const aaiObj = await aaiService.deleteAai(req.body);
+
+        res.status(200).json(aaiObj);
+    }
+
     async GetGeneralAaiByClassroomCode(req, res) {
         const generalAai = await aaiService.getGeneralAaiByClassroomCode(req.body);
 

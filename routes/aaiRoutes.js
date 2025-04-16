@@ -7,6 +7,9 @@ const aaiController = require('../controllers/aaiController');
 router.post(baseUrl + '/getGeneralAaiByClassroomCode', aaiController.GetGeneralAaiByClassroomCode);
 router.post(baseUrl + '/getAaiByClassroomCode', aaiController.GetAaiByClassroomCode);
 router.post(baseUrl + '/getAaiGradesByClassroomCode', aaiController.GetAaiGradesByClassroomCode);
+router.post(baseUrl + '/getAaiBySubjectAaiId', aaiController.GetAaiBySubjectAaiId);
+router.post(baseUrl + '/getSubjectAaiByClassroomCode', aaiController.GetSubjectAaiByClassroomCode);
+router.post(baseUrl + '/getSubjectAaiByClassroomCodeAndSubjectCode', aaiController.GetSubjectAaiByClassroomCodeAndSubjectCode)
 
 //addEdit
 router.post(baseUrl + '/addAai', aaiController.AddAai);

@@ -1,6 +1,7 @@
 const supabase = require('./supabaseClient');
 const userService = require('../services/userService');
 const classroomService = require('../services/classroomService');
+const classroomSubjectService = require('../services/classroomSubjectService');
 const { map } = require('lodash');
 
 class aaiService{
@@ -110,7 +111,35 @@ class aaiService{
         const { data, error } = await supabase
             .from('subject_academic_achievement_index')
             .select('*')
-            .eq('classroom_code', req.classroomCode);
+            .eq('classroom_code', req.classroomCode).eq('aai_type', 'General');
+
+
+        if(error){
+            return error;
+        } else {
+            return data;
+        }
+    }
+
+    async getSubjectAaiByClassroomCode(req) {
+        const { data, error } = await supabase
+            .from('subject_academic_achievement_index')
+            .select('*')
+            .eq('classroom_code', req.classroomCode).eq('aai_type', 'Subject');
+
+
+        if(error){
+            return error;
+        } else {
+            return data;
+        }
+    }
+
+    async getSubjectAaiBySubjectCodeAndClassroomCode(req){
+        const { data, error } = await supabase
+            .from('subject_academic_achievement_index')
+            .select('*')
+            .eq('classroom_code', req.classroomCode).eq('subject_code', req.subjectCode).eq('aai_type', 'Subject');
 
 
         if(error){
@@ -145,10 +174,10 @@ class aaiService{
         }
     }
 
-    async getAaiGradesByClassroomCode(req){
+    async getAaiBySubjectAaiId(req){
         const existingClass = await classroomService.getClassroomByClassroomCode(req);
-        const {data, error} = await supabase.from('subject_aai_grades').select('*').eq('classroom_code', req.classroomCode);
-    
+        const{data, error} = await supabase.form('subject_academic_achievement_index').select('*').eq('subject_aai_id', req.subjectAaiId);
+
         if(error){
             return error;
         } else {
@@ -156,6 +185,19 @@ class aaiService{
         }
     }
 
+    async getAaiGradesByClassroomCode(req){
+        const existingClass = await classroomService.getClassroomByClassroomCode(req);
+        const {data, error} = await supabase.from('subject_aai_grades').select('*').eq('classroom_code', req.classroomCode);
+        if(data.length == 0 || data == null){
+            return `AAI Not Found`;
+        }
+    
+        if(error){
+            return error;
+        } else {
+            return data;
+        }
+    }
 
     async addAaiGrade(req) {
         if (!req || !Array.isArray(req) || req.length === 0) {

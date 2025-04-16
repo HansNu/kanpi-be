@@ -26,8 +26,26 @@ class aaiController{
         res.status(200).json(generalAai);
     }
 
+    async GetSubjectAaiByClassroomCode(req, res) {
+        const subjectAai = await aaiService.getSubjectAaiByClassroomCode(req.body);
+
+        res.status(200).json(subjectAai);
+    }
+
+    async GetSubjectAaiByClassroomCodeAndSubjectCode(req, res){
+        const subjectAai = await aaiService.getSubjectAaiBySubjectCodeAndClassroomCode(req.body);
+
+        res.status(200).json(subjectAai);
+    }
+
     async GetAaiByClassroomCode(req, res) {
         const aai = await aaiService.getAaiByClassroomCode(req.body);
+
+        res.status(200).json(aai);
+    }
+
+    async GetAaiBySubjectAaiId(req, res){
+        const aai = await aaiService.getAaiBySubjectAaiId(req.body);
 
         res.status(200).json(aai);
     }

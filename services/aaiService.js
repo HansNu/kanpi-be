@@ -9,7 +9,13 @@ class aaiService{
     async addAai (req){
         const userData = await userService.getUserByUserId(req.userId);
 
-        const isMaxWeight = await this.getAaiByClassroomCode(req);
+        let isMaxWeight = 0
+
+        if(req.aaiType == 'General'){
+            isMaxWeight = await this.getGeneralAaiByClassroomCode(req);
+        } else {
+            isMaxWeight = await this.getSubjectAaiByClassroomCode(req);
+        }
 
         let totalClassAaiWeight = 0;
         
@@ -20,7 +26,7 @@ class aaiService{
 
         if(totalClassAaiWeight > 1.0) {
             return {
-                Message : `Total Weight Of A Class Must Not Exceed 1, Current AAI Total Weight : ${totalClassAaiWeight}`
+                Message : `Total Weight Of AAI Must Not Exceed 1, Current AAI Total Weight : ${totalClassAaiWeight}`
             }        
         }
 
@@ -59,7 +65,14 @@ class aaiService{
     async editAai (req){
         const userData = await userService.getUserByUserId(req.userId);
 
-        const isMaxWeight = await this.getAaiByClassroomCode(req);
+        let isMaxWeight = 0
+
+        if(req.aaiType == 'General'){
+            isMaxWeight = await this.getGeneralAaiByClassroomCode(req);
+        } else {
+            isMaxWeight = await this.getSubjectAaiByClassroomCode(req);
+        }
+        
         if(isMaxWeight == null || isMaxWeight.length == 0){
             return {Message : `AAI Of Class ${req.classroomCode} Not Found`}
         }

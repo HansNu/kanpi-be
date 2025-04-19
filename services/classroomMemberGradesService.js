@@ -32,7 +32,7 @@ class classroomMemberGrades {
     }
 
     async getGeneralStudentGrades(req){
-        const {data, error} = await supabase.from('classroom_member_grades').select('*');
+        const {data, error} = await supabase.from('classroom_member_grades').select('*').eq('classroom_code', req.classroomCode);
         if(data.length == 0 || data == null) {
             return {Message : `Student Grades Not Found`};
         }

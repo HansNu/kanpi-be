@@ -10,6 +10,7 @@ const classroomSubjectRoutes = require('./routes/classroomSubjectRoutes');
 const kanbanRoutes = require('./routes/kanbanRoutes');
 const aaiRoutes = require('./routes/aaiRoutes');
 const supabase = require('./services/supabaseClient');
+const memberGradeRoutes = require('./routes/classroomMemberGradesRoutes');
 
 dotenv.config();
 
@@ -35,6 +36,7 @@ app.use(baseUrl, classroomAdminRoutes);
 app.use(baseUrl, classroomSubjectRoutes);
 app.use(baseUrl, kanbanRoutes);
 app.use(baseUrl, aaiRoutes);
+app.use(baseUrl, memberGradeRoutes);
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);

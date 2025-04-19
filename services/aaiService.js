@@ -9,19 +9,26 @@ class aaiService{
     async addAai (req){
         const userData = await userService.getUserByUserId(req.userId);
 
-        let isMaxWeight = 0
+        let isMaxWeight = 0;
+        let totalClassAaiWeight = 0;
+        let aaiWeight = 0;
 
         if(req.aaiType == 'General'){
             isMaxWeight = await this.getGeneralAaiByClassroomCode(req);
-        } else {
+            
+            for(let i = 0; i<isMaxWeight.length; i++){
+                aaiWeight = isMaxWeight[i].aai_weight || 0;
+                totalClassAaiWeight += aaiWeight;
+            }
+        } else if(req.aaiType == 'Subject'){
             isMaxWeight = await this.getSubjectAaiByClassroomCode(req);
-        }
 
-        let totalClassAaiWeight = 0;
-        
-        for(let i = 0; i<isMaxWeight.length; i++){
-            const aaiWeight = isMaxWeight[i].aai_weight || 0;
-            totalClassAaiWeight += aaiWeight;
+            let subjectAai = isMaxWeight.filter(subject => subject.subject_code === req.subjectCode);
+            
+            for(let j = 0; j< subjectAai.length; j++){
+                aaiWeight = subjectAai[j].aai_weight || 0;
+                totalClassAaiWeight += aaiWeight;
+            }
         }
 
         if(totalClassAaiWeight > 1.0) {
@@ -65,27 +72,33 @@ class aaiService{
     async editAai (req){
         const userData = await userService.getUserByUserId(req.userId);
 
-        let isMaxWeight = 0
+        let isMaxWeight = 0;
+        let totalClassAaiWeight = 0;
+        let aaiWeight = 0;
 
-        if(req.aaiType == 'General'){
+        if (req.aaiType === 'General') {
             isMaxWeight = await this.getGeneralAaiByClassroomCode(req);
-        } else {
+        } else if (req.aaiType === 'Subject') {
             isMaxWeight = await this.getSubjectAaiByClassroomCode(req);
         }
         
-        if(isMaxWeight == null || isMaxWeight.length == 0){
-            return {Message : `AAI Of Class ${req.classroomCode} Not Found`}
+        if (!isMaxWeight || isMaxWeight.length === 0) {
+            return { Message: `AAI Of Class ${req.classroomCode} Not Found` };
         }
-
-        let totalClassAaiWeight = 0;
         
-        for(let i = 0; i<isMaxWeight.length; i++){
-            if(isMaxWeight[i].subject_aai_id == req.subjectAaiId) {
-                continue;
+        if (req.aaiType === 'General') {
+            for (let i = 0; i < isMaxWeight.length; i++) {
+                aaiWeight = isMaxWeight[i].aai_weight || 0;
+                totalClassAaiWeight += aaiWeight;
             }
-            const aaiWeight = isMaxWeight[i].aai_weight || 0;
-            totalClassAaiWeight += aaiWeight;
-        }
+        } else if (req.aaiType === 'Subject') {
+            const subjectAai = isMaxWeight.filter(subject => subject.subject_code === req.subjectCode);
+        
+            for (let j = 0; j < subjectAai.length; j++) {
+                aaiWeight = subjectAai[j].aai_weight || 0;
+                totalClassAaiWeight += aaiWeight;
+            }
+        }        
 
         const newTotalWeight = totalClassAaiWeight + req.aaiWeight;
         if (newTotalWeight > 1.0) {
@@ -188,8 +201,12 @@ class aaiService{
     }
 
     async getAaiBySubjectAaiId(req){
-        const existingClass = await classroomService.getClassroomByClassroomCode(req);
-        const{data, error} = await supabase.form('subject_academic_achievement_index').select('*').eq('subject_aai_id', req.subjectAaiId);
+        const{data, error} = await supabase.from('subject_academic_achievement_index').select('*').eq('subject_aai_id', req.subjectAaiId);
+        if(data == null || data.length == 0){
+            return {
+                Message: `AAI Not Found`
+            };
+        }
 
         if(error){
             return error;
@@ -202,7 +219,7 @@ class aaiService{
         const existingClass = await classroomService.getClassroomByClassroomCode(req);
         const {data, error} = await supabase.from('subject_aai_grades').select('*').eq('classroom_code', req.classroomCode);
         if(data.length == 0 || data == null){
-            return `AAI Not Found`;
+            return `Grade System Not Found`;
         }
     
         if(error){

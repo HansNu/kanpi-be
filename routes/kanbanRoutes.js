@@ -4,14 +4,12 @@ const kanbanController = require('../controllers/kanbanController');
 const router = express.Router();
 const baseUrl = '/kanban';
 
-//get
 router.post(baseUrl + '/getKanbanById', KanbanController.GetKanbanById);
 router.post(baseUrl + '/getListKanbanByUserId', KanbanController.GetListKanbanByUser);
 router.post(baseUrl + '/getListKanbanByUserIdAndMonth', KanbanController.GetListKanbanByUserAndMonth);
 router.post(baseUrl + '/getListKanbanByUserAndClassroom', KanbanController.GetListKanbanByUserAndClassroom);
 router.post(baseUrl + '/getKanbanByClassroomCode', KanbanController.GetKanbanByClassroomCode);
 
-//addEdit
 router.post(baseUrl + '/addKanban', KanbanController.AddKanban);
 router.post(baseUrl + '/editKanban', kanbanController.EditKanban);
 router.post(baseUrl + '/rejectAllKanbanByUserId', kanbanController.RejectAllKanbanByUserId);
@@ -20,7 +18,6 @@ router.post(baseUrl + '/rejectKanbanByKanbanId', kanbanController.RejectKanbanBy
 router.post(baseUrl + '/approveKanbanByKanbanId', kanbanController.ApproveKanbanByKanbanId);
 
 
-//transaction
 router.post(baseUrl + '/updateKanbanToInProgress', KanbanController.UpdateKanbanToInProgress);
 router.post(baseUrl + '/updateKanbanToDone', KanbanController.UpdateKanbanToDone);
 router.post(baseUrl + '/deleteKanban', KanbanController.DeleteKanban);

@@ -8,6 +8,18 @@ class classroomMemberGradesController {
 
         res.status(200).json(memberGrades);
     }
+    
+    async GetGeneralStudentGrades(req, res){
+        const memberGrades = await classroomMemberGrades.getGeneralStudentGrades(req.body);
+
+        res.status(200).json(memberGrades);
+    }
+
+    async GetSubjectStudentGrades(req, res){
+        const memberGrades = await classroomMemberGrades.getSubjectStudentGrades(req.body);
+
+        res.status(200).json(memberGrades);
+    }
 
     async AddStudentGradeScore(req, res){
         const memberGrades = await classroomMemberGrades.addStudentGradeScore(req.body);
@@ -15,11 +27,6 @@ class classroomMemberGradesController {
         res.status(200).json(memberGrades);
     }
 
-    async GetGeneralStudentGrades(req, res){
-        const memberGrades = await classroomMemberGrades.getGeneralStudentGrades(req.body);
-
-        res.status(200).json(memberGrades);
-    }
 
 }
 

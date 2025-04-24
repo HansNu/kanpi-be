@@ -70,8 +70,12 @@ class classroomMemberGrades {
             }
         
             student.scores.push({
+                subjectCode: aaiMap[subject_aai_id],
                 subjectAaiId: subject_aai_id,
                 aaiName: aaiMap[subject_aai_id],
+                aaiDescr: aaiMap[subject_aai_id],  
+                aaiWeight :aaiMap[subject_aai_id],
+
                 score: parseFloat(score)
             });
         
@@ -103,6 +107,14 @@ class classroomMemberGrades {
         }
         
         return result;
+    }
+
+    async getSubjectStudentGrades(req) {
+        const { data, error } = await supabase.from('classroom_member_grades').select('*')
+                                .eq('classroom_code', req.classroomCode)
+                                .eq('subject_code', req.subjectCode);
+
+        
     }
 
     async addStudentGradeScore(req) {

@@ -61,14 +61,13 @@ class classroomMemberGrades {
         const studentGrades = [];
 
         for (const entry of data) {
-            const { member_id, score, subject_aai_id, grade } = entry;
+            const { member_id, score, subject_aai_id, grade} = entry;
         
             let student = studentGrades.find(s => s.memberId === member_id);
         
             if (!student) {
                 student = {
                     memberId: member_id,
-                    grade: grade,
                     scores: [],
                     total: 0,
                     count: 0
@@ -82,6 +81,7 @@ class classroomMemberGrades {
                 aaiName: aaiMap[subject_aai_id].aaiName,
                 aaiDescr: aaiMap[subject_aai_id].aaiDescr,
                 aaiWeight: aaiMap[subject_aai_id].aaiWeight,
+                grade: grade,
                 score: parseFloat(score)
             });
         
@@ -133,7 +133,7 @@ class classroomMemberGrades {
         const aaiMap = {};
         for (const aai of compileAai) {
             aaiMap[aai.subject_aai_id] = {
-                subjectAaiid: subject_aai_id,
+                subjectAaiid: aai.subject_aai_id,
                 aaiName: aai.aai_name,
                 aaiDescr: aai.aai_descr,
                 aaiWeight: aai.aai_weight,
@@ -152,7 +152,6 @@ class classroomMemberGrades {
             if (!student) {
                 student = {
                     memberId: member_id,
-                    grade: grade,
                     scores: [],
                     total: 0,
                     count: 0
@@ -161,16 +160,12 @@ class classroomMemberGrades {
             }
         
             student.scores.push({
+                subjectAaiid: subject_aai_id,
                 subjectCode: aaiMap[subject_aai_id].subjectCode,
                 aaiName: aaiMap[subject_aai_id].aaiName,
                 aaiDescr: aaiMap[subject_aai_id].aaiDescr,
                 aaiWeight: aaiMap[subject_aai_id].aaiWeight,
-                subjectCode: aaiMap[subject_aai_id],
-                subjectAaiId: subject_aai_id,
-                aaiName: aaiMap[subject_aai_id],
-                aaiDescr: aaiMap[subject_aai_id],  
-                aaiWeight :aaiMap[subject_aai_id],
-
+                grade: grade,
                 score: parseFloat(score)
             });
         
@@ -202,14 +197,6 @@ class classroomMemberGrades {
         }
         
         return result;
-    }
-
-    async getSubjectStudentGrades(req) {
-        const { data, error } = await supabase.from('classroom_member_grades').select('*')
-                                .eq('classroom_code', req.classroomCode)
-                                .eq('subject_code', req.subjectCode);
-
-        
     }
 
     async addStudentGradeScore(req) {

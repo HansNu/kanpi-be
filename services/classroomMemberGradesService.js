@@ -127,7 +127,9 @@ class classroomMemberGrades {
             const stuGrade = convertToCamelCase(data[x]);
             const aai = await aaiService.getAaiBySubjectAaiId(stuGrade);
             
-            if (aai) compileAai.push(aai[0]);
+            if(aai[x].aai_type == 'Subject') {
+                if (aai) compileAai.push(aai[0]);
+            }
         }
 
         const aaiMap = {};
@@ -144,6 +146,12 @@ class classroomMemberGrades {
 
         const studentGrades = [];
 
+        if(!Object.keys(aaiMap).length)
+        {
+            return {
+                Message : `No Grades Found On Any Subject`
+            }
+        }
         for (const entry of data) {
             const { member_id, score, subject_aai_id, grade } = entry;
         

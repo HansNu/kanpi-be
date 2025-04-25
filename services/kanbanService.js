@@ -10,8 +10,194 @@ class kanbanService {
 
     async getKanbanById(kanbanId) {
         const { data, error } = await supabase.from('kanban').select('*').eq('kanban_id', kanbanId);
-
+        
         return data[0];
+    }
+    
+    async getListKanbanByUser(userId) {
+        const { data, error } = await supabase
+            .from('kanban')
+            .select('*')
+            .eq('user_id', userId);
+    
+        if (!data || data.length === 0) {
+            return 'Kanban not found';
+        }
+    
+        const subjectCodes = data.map(item => item.subject_code);
+    
+        const { data: subjects, error: subjectError } = await supabase
+            .from('classroom_subjects')
+            .select('subject_name, subject_code')
+            .in('subject_code', subjectCodes);
+    
+        if (subjectError) {
+            return 'Failed to fetch subjects';
+        }
+    
+        const kanbanWithSubjects = data.map(kanban => ({
+            ...kanban,
+            subject: subjects.find(subject => subject.subject_code === kanban.subject_code) || null
+        }));
+    
+        const currentDate = new Date();
+    
+        for(const kanban of kanbanWithSubjects) {
+            const deadlineDt = kanban.deadline ? new Date(kanban.deadline) : null;
+        
+            let kanbanStat = kanban.kanban_stat;
+    
+            if(deadlineDt && deadlineDt < currentDate && kanbanStat != 'Done') {
+                kanbanStat = 'Late';
+            }
+    
+            const updateLate = await supabase.from('kanban').update({ kanban_stat: kanbanStat }).eq('kanban_id', kanban.kanban_id).select('*');
+    
+            if (updateLate.error) {
+                return error('Error updating kanban status:', updateLate.error);
+            }
+        }
+    
+        return kanbanWithSubjects;
+    }
+    
+    
+    async getListKanbanByUserAndMonth(req) {
+        const { data, error } = await supabase.rpc('get_kanban_by_user_and_month', {
+            p_user_id: req.userId,
+            p_year: req.year,
+            p_month: req.month
+        });
+    
+        if (error) {
+            console.error("Error fetching Kanban:", error);
+            return error;
+        }
+    
+        const subjectCodes = data.map(item => item.subject_code);
+    
+        const { data: subjects, error: subjectError } = await supabase
+            .from('classroom_subjects')
+            .select('subject_name, subject_code')
+            .in('subject_code', subjectCodes);
+    
+        if (subjectError) {
+            return 'Failed to fetch subjects';
+        }
+    
+        const kanbanWithSubjects = data.map(kanban => ({
+            ...kanban,
+            subject: subjects.find(subject => subject.subject_code === kanban.subject_code) || null
+        }));
+    
+        return kanbanWithSubjects;
+    
+    }
+    
+    async getListKanbanByUserAndClassroom(req) {
+        const { data, error } = await supabase.from('kanban').select('*')
+            .eq('user_id', req.userId).eq('classroom_code', req.classroomCode);
+    
+            const subjectCodes = data.map(item => item.subject_code);
+    
+            const { data: subjects, error: subjectError } = await supabase
+                .from('classroom_subjects')
+                .select('subject_name, subject_code')
+                .in('subject_code', subjectCodes);
+        
+            if (subjectError) {
+                return 'Failed to fetch subjects';
+            }
+        
+            const kanbanWithSubjects = data.map(kanban => ({
+                ...kanban,
+                subject: subjects.find(subject => subject.subject_code === kanban.subject_code) || null
+            }));
+
+            const currentDate = new Date();
+    
+            for(const kanban of kanbanWithSubjects) {
+                const deadlineDt = kanban.deadline ? new Date(kanban.deadline) : null;
+            
+                let kanbanStat = kanban.kanban_stat;
+        
+                if(deadlineDt && deadlineDt < currentDate && kanbanStat != 'Done') {
+                    kanbanStat = 'Late';
+                }
+        
+                const updateLate = await supabase.from('kanban').update({ kanban_stat: kanbanStat }).eq('kanban_id', kanban.kanban_id).select('*');
+        
+                if (updateLate.error) {
+                    return error('Error updating kanban status:', updateLate.error);
+                }
+            }
+        
+            return kanbanWithSubjects;
+    }
+    
+    async getKanbanCountByUserId(memberId) {
+        const existingMember = await classroomMemberService.getClassroomMemberByMemberId(memberId);
+        if (!existingMember) {
+            return { error: "User Not Found" };
+        }
+    
+        const statuses = ["Pending", "In Progress", "Done", "Approved", "Rejected", "Late"];
+        
+        const kanbanCounts = {
+            Pending: 0,
+            "In Progress": 0,
+            Done: 0,
+            Approved: 0,
+            Rejected: 0,
+            Late: 0 
+        };
+    
+        for (const status of statuses) {
+            const { count, error } = await supabase
+                .from("kanban")
+                .select("*", { count: "exact" })
+                .eq("member_id", memberId)
+                .eq("kanban_stat", status);
+    
+            if (error) {
+                return console.error(`Error fetching count for status "${status}":`, error);
+                continue; 
+            }
+    
+            kanbanCounts[status] = count; 
+        }
+    
+        return {
+            user: existingMember,  
+            kanbanCounts          
+        };
+    }
+    
+    async getListKanbanByClassroomCode(req){
+        const existingClass = await classroomService.getClassroomByClassroomCode(req);
+        
+        const {data, error} = await supabase.from('kanban').select('*').eq('classroom_code', req.classroomCode);
+        if(data == null || data.length == 0){
+            return `No Kanban found in classroom ${existingClass.classroom_name}`;
+        }
+    
+        const subjectCodes = data.map(item => item.subject_code);
+    
+            const { data: subjects, error: subjectError } = await supabase
+                .from('classroom_subjects')
+                .select('subject_name, subject_code')
+                .in('subject_code', subjectCodes);
+        
+            if (subjectError) {
+                return 'Failed to fetch subjects';
+            }
+        
+            const kanbanWithSubjects = data.map(kanban => ({
+                ...kanban,
+                subject: subjects.find(subject => subject.subject_code === kanban.subject_code) || null
+            }));
+        
+            return kanbanWithSubjects;
     }
 
     async addKanban(kanbanData) {
@@ -144,173 +330,6 @@ class kanbanService {
         };
     }
 
-    async getListKanbanByUser(userId) {
-        const { data, error } = await supabase
-            .from('kanban')
-            .select('*')
-            .eq('user_id', userId);
-
-        if (!data || data.length === 0) {
-            return 'Kanban not found';
-        }
-    
-        const subjectCodes = data.map(item => item.subject_code);
-    
-        const { data: subjects, error: subjectError } = await supabase
-            .from('classroom_subjects')
-            .select('subject_name, subject_code')
-            .in('subject_code', subjectCodes);
-
-        if (subjectError) {
-            return 'Failed to fetch subjects';
-        }
-    
-        const kanbanWithSubjects = data.map(kanban => ({
-            ...kanban,
-            subject: subjects.find(subject => subject.subject_code === kanban.subject_code) || null
-        }));
-
-        const currentDate = new Date();
-
-        for(const kanban of kanbanWithSubjects) {
-            const deadlineDt = kanban.deadline ? new Date(kanban.deadline) : null;
-        
-            let kanbanStat = kanban.kanban_stat;
-
-            if(deadlineDt && deadlineDt < currentDate && kanbanStat != 'Done') {
-                kanbanStat = 'Late';
-            }
-
-            const updateLate = await supabase.from('kanban').update({ kanban_stat: kanbanStat }).eq('kanban_id', kanban.kanban_id).select('*');
-
-            if (updateLate.error) {
-                return error('Error updating kanban status:', updateLate.error);
-            }
-        }
-
-        return kanbanWithSubjects;
-    }
-
-
-    async getListKanbanByUserAndMonth(req) {
-        const { data, error } = await supabase.rpc('get_kanban_by_user_and_month', {
-            p_user_id: req.userId,
-            p_year: req.year,
-            p_month: req.month
-        });
-
-        if (error) {
-            console.error("Error fetching Kanban:", error);
-            return error;
-        }
-
-        const subjectCodes = data.map(item => item.subject_code);
-    
-        const { data: subjects, error: subjectError } = await supabase
-            .from('classroom_subjects')
-            .select('subject_name, subject_code')
-            .in('subject_code', subjectCodes);
-    
-        if (subjectError) {
-            return 'Failed to fetch subjects';
-        }
-    
-        const kanbanWithSubjects = data.map(kanban => ({
-            ...kanban,
-            subject: subjects.find(subject => subject.subject_code === kanban.subject_code) || null
-        }));
-    
-        return kanbanWithSubjects;
-
-    }
-
-    async getListKanbanByUserAndClassroom(req) {
-        const { data, error } = await supabase.from('kanban').select('*')
-            .eq('user_id', req.userId).eq('classroom_code', req.classroomCode);
-
-            const subjectCodes = data.map(item => item.subject_code);
-    
-            const { data: subjects, error: subjectError } = await supabase
-                .from('classroom_subjects')
-                .select('subject_name, subject_code')
-                .in('subject_code', subjectCodes);
-        
-            if (subjectError) {
-                return 'Failed to fetch subjects';
-            }
-        
-            const kanbanWithSubjects = data.map(kanban => ({
-                ...kanban,
-                subject: subjects.find(subject => subject.subject_code === kanban.subject_code) || null
-            }));
-        
-            return kanbanWithSubjects;
-    }
-
-    async getKanbanCountByUserId(memberId) {
-        const existingMember = await classroomMemberService.getClassroomMemberByMemberId(memberId);
-        if (!existingMember) {
-            return { error: "User Not Found" };
-        }
-    
-        const statuses = ["Pending", "In Progress", "Done", "Approved", "Rejected", "Late"];
-        
-        const kanbanCounts = {
-            Pending: 0,
-            "In Progress": 0,
-            Done: 0,
-            Approved: 0,
-            Rejected: 0,
-            Late: 0 
-        };
-    
-        for (const status of statuses) {
-            const { count, error } = await supabase
-                .from("kanban")
-                .select("*", { count: "exact" })
-                .eq("member_id", memberId)
-                .eq("kanban_stat", status);
-    
-            if (error) {
-                return console.error(`Error fetching count for status "${status}":`, error);
-                continue; 
-            }
-    
-            kanbanCounts[status] = count; 
-        }
-    
-        return {
-            user: existingMember,  
-            kanbanCounts          
-        };
-    }
-
-    async getListKanbanByClassroomCode(req){
-        const existingClass = await classroomService.getClassroomByClassroomCode(req);
-        
-        const {data, error} = await supabase.from('kanban').select('*').eq('classroom_code', req.classroomCode);
-        if(data == null || data.length == 0){
-            return `No Kanban found in classroom ${existingClass.classroom_name}`;
-        }
-
-        const subjectCodes = data.map(item => item.subject_code);
-    
-            const { data: subjects, error: subjectError } = await supabase
-                .from('classroom_subjects')
-                .select('subject_name, subject_code')
-                .in('subject_code', subjectCodes);
-        
-            if (subjectError) {
-                return 'Failed to fetch subjects';
-            }
-        
-            const kanbanWithSubjects = data.map(kanban => ({
-                ...kanban,
-                subject: subjects.find(subject => subject.subject_code === kanban.subject_code) || null
-            }));
-        
-            return kanbanWithSubjects;
-    }
     
     async rejectAllKanbanByUserId(req) {
         const checkMember = await classroomMemberService.getClassroomMemberByMemberIdAndClassroomCode(req);

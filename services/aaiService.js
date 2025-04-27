@@ -14,7 +14,17 @@ class aaiService{
         let aaiWeight = 0;
 
         if(req.aaiType == 'General'){
-            isMaxWeight = await this.getGeneralAaiByClassroomCode(req);
+            let generalAaiList = await this.getGeneralAaiByClassroomCode(req);
+
+            for(let i = 0; i < generalAaiList.length; i++) {
+                if(generalAaiList[i].subject_code === req.subjectCode) {
+                    return {
+                        message: `Duplicate General AAI for Subject Code ${req.subjectCode}`
+                    };
+                }
+            }
+            
+            isMaxWeight = generalAaiList;
             
             for(let i = 0; i<isMaxWeight.length; i++){
                 aaiWeight = isMaxWeight[i].aai_weight || 0;

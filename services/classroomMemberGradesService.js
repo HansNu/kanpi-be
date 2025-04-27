@@ -9,7 +9,7 @@ const _ = require('lodash');
 class classroomMemberGrades {
 
     async getMemberGradeByAaiIdAndMemberId(req) {
-        const existingAai = await aaiService.getAaiBySubjectAaiId(req);
+        const existingAai = await aaiService.getAaiBysubjectAaiId(req);
         const aai = convertToCamelCase(existingAai[0]);
 
         const existingClass = await classroomService.getClassroomByClassroomCode(aai);
@@ -29,90 +29,6 @@ class classroomMemberGrades {
         } else {
             return data;
         }
-    }
-
-    async getGeneralStudentGrades(req){
-        const {data, error} = await supabase.from('classroom_member_grades').select('*').eq('classroom_code', req.classroomCode);
-        if(data.length == 0 || data == null) {
-            return {Message : `Student Grades Not Found`};
-        }
-
-        const compileAai = [];
-
-        for (let x = 0; x < data.length; x++) {
-            const stuGrade = convertToCamelCase(data[x]);
-            const aai = await aaiService.getAaiBySubjectAaiId(stuGrade);
-            
-            if (aai) compileAai.push(aai[0]);
-        }
-
-        const aaiMap = {};
-        for (const aai of compileAai) {
-            aaiMap[aai.subject_aai_id] = {
-                subjectAaiId : aai.subject_aai_id,
-                aaiName: aai.aai_name,
-                aaiDescr: aai.aai_descr,
-                aaiWeight: aai.aai_weight,
-                subjectCode: aai.subject_code
-            };
-        }
-        
-
-        const studentGrades = [];
-
-        for (const entry of data) {
-            const { member_id, score, subject_aai_id, grade} = entry;
-        
-            let student = studentGrades.find(s => s.memberId === member_id);
-        
-            if (!student) {
-                student = {
-                    memberId: member_id,
-                    scores: [],
-                    total: 0,
-                    count: 0
-                };
-                studentGrades.push(student);
-            }
-        
-            student.scores.push({
-                subjectAaiid: subject_aai_id,
-                subjectCode: aaiMap[subject_aai_id].subjectCode,
-                aaiName: aaiMap[subject_aai_id].aaiName,
-                aaiDescr: aaiMap[subject_aai_id].aaiDescr,
-                aaiWeight: aaiMap[subject_aai_id].aaiWeight,
-                grade: grade,
-                score: parseFloat(score)
-            });
-        
-            student.total += parseFloat(score);
-            student.count += 1;
-        }
-        
-        const studentList = [];
-
-        for (let i = 0; i < studentGrades.length; i++) {
-            const memberId = studentGrades[i].memberId;
-            const studentData = await classroomMemberService.getClassroomMemberByMemberId(memberId);
-            studentList.push(studentData[0]);
-        }
-
-
-        const result = [];
-
-        for(const j in studentGrades) {
-            const gradeData = studentGrades[j];
-            const studentInfo = studentList.find(s => s.member_id === gradeData.memberId);
-
-            result.push({
-                memberId: gradeData.memberId,
-                studentName: studentInfo.member_name,
-                averageScore: gradeData.total / gradeData.count,
-                scores : gradeData.scores
-            })
-        }
-        
-        return result;
     }
 
     async getGeneralStudentGrades(req) {
@@ -157,7 +73,7 @@ class classroomMemberGrades {
             }
             
             student.scores.push({
-                subjectAaiid: subject_aai_id,
+                subjectAaiId: subject_aai_id,
                 subjectCode: aaiMap[subject_aai_id].subjectCode,
                 aaiName: aaiMap[subject_aai_id].aaiName,
                 aaiDescr: aaiMap[subject_aai_id].aaiDescr,
@@ -187,7 +103,7 @@ class classroomMemberGrades {
                 const { subjectCode } = score;
                 if (!subjectScores[subjectCode]) {
                     subjectScores[subjectCode] = {
-                        subjectAaiid: score.subjectAaiid,
+                        subjectAaiId: score.subjectAaiId,
                         subjectCode,
                         aaiName: score.aaiName,
                         aaiDescr: score.aaiDescr,
@@ -205,7 +121,7 @@ class classroomMemberGrades {
             }
             
             const avgSubjectScore = Object.values(subjectScores).map(subject => ({
-                subjectAaiid: subject.subjectAaiid,
+                subjectAaiId: subject.subjectAaiId,
                 subjectCode: subject.subjectCode,
                 aaiName: subject.aaiName,
                 aaiDescr: subject.aaiDescr, 
@@ -220,14 +136,119 @@ class classroomMemberGrades {
                 averageScore: gradeData.total / gradeData.count,
                 scores: avgSubjectScore
             });
+    
+        }
+    
+        const { data: getData, error: getError } = await supabase
+                            .from('subject_academic_achievement_index')
+                            .select('*')
+                            .eq('classroom_code', req.classroomCode).eq('aai_type', 'General');
+        
+        for(let q=0; q < getData.length; q++){
+            const subject = getData.find(x => x.subject_code == result[0].scores[q].subjectCode);        
+
+            result[0].scores[q].subjectAaiId = subject.subject_aai_id;
+            result[0].scores[q].aaiName = subject.aai_name;
+            result[0].scores[q].aaiDescr = subject.aai_descr;
+            result[0].scores[q].aaiWeight = subject.aaiWeight;
         }
         
         return result;
     }
-    
+
+    async getSubjectStudentGrades(req){
+        const {data, error} = await supabase.from('classroom_member_grades').select('*').eq('classroom_code', req.classroomCode).eq('subject_code', req.subjectCode);
+        if(data.length == 0 || data == null) {
+            return {Message : `Student Grades Not Found`};
+        }
+
+        const compileAai = [];
+
+        for (let x = 0; x < data.length; x++) {
+            const stuGrade = convertToCamelCase(data[x]);
+            const aai = await aaiService.getAaiBysubjectAaiId(stuGrade);
+            
+            if(aai[x].aai_type == 'Subject') {
+                if (aai) compileAai.push(aai[0]);
+            }
+        }
+
+        const aaiMap = {};
+        for (const aai of compileAai) {
+            aaiMap[aai.subject_aai_id] = {
+                subjectAaiId: aai.subject_aai_id,
+                aaiName: aai.aai_name,
+                aaiDescr: aai.aai_descr,
+                aaiWeight: aai.aai_weight,
+                subjectCode: aai.subject_code
+            };
+        }
+
+        const studentGrades = [];
+
+        if(!Object.keys(aaiMap).length)
+        {
+            return {
+                Message : `No Grades Found On Any Subject`
+            }
+        }
+        for (const entry of data) {
+            const { member_id, score, subject_aai_id, grade } = entry;
+        
+            let student = studentGrades.find(s => s.memberId === member_id);
+        
+            if (!student) {
+                student = { 
+                    memberId: member_id,
+                    scores: [],
+                    total: 0,
+                    count: 0
+                };
+                studentGrades.push(student);
+            }
+        
+            student.scores.push({
+                subjectAaiId: subject_aai_id,
+                subjectCode: aaiMap[subject_aai_id].subjectCode,
+                aaiName: aaiMap[subject_aai_id].aaiName,
+                aaiDescr: aaiMap[subject_aai_id].aaiDescr,
+                aaiWeight: aaiMap[subject_aai_id].aaiWeight,
+                grade: grade,
+                score: parseFloat(score)
+            });
+        
+            student.total += parseFloat(score);
+            student.count += 1;
+        }
+        
+        const studentList = [];
+
+        for (let i = 0; i < studentGrades.length; i++) {
+            const memberId = studentGrades[i].memberId;
+            const studentData = await classroomMemberService.getClassroomMemberByMemberId(memberId);
+            studentList.push(studentData[0]);
+        }
+
+
+        const result = [];
+
+        for(const j in studentGrades) {
+            const gradeData = studentGrades[j];
+            const studentInfo = studentList.find(s => s.member_id === gradeData.memberId);
+
+            result.push({
+                memberId: gradeData.memberId,
+                studentName: studentInfo.member_name,
+                averageScore: gradeData.total / gradeData.count,
+                scores : gradeData.scores
+            })
+        }
+        
+        return result;
+    }
 
     async addStudentGradeScore(req) {
-        const existingAai = await aaiService.getAaiBySubjectAaiId(req);
+        const existingAai = await aaiService.getAaiBysubjectAaiId(req);
         const aai = convertToCamelCase(existingAai[0]);
         const gradeRules = await aaiService.getAaiGradesByClassroomCode(aai);
 

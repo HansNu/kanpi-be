@@ -9,7 +9,7 @@ const _ = require('lodash');
 class classroomMemberGrades {
 
     async getMemberGradeByAaiIdAndMemberId(req) {
-        const existingAai = await aaiService.getAaiBysubjectAaiId(req);
+        const existingAai = await aaiService.getAaiBySubjectAaiId(req);
         const aai = convertToCamelCase(existingAai[0]);
 
         const existingClass = await classroomService.getClassroomByClassroomCode(aai);
@@ -166,7 +166,7 @@ class classroomMemberGrades {
 
         for (let x = 0; x < data.length; x++) {
             const stuGrade = convertToCamelCase(data[x]);
-            const aai = await aaiService.getAaiBysubjectAaiId(stuGrade);
+            const aai = await aaiService.getAaiBySubjectAaiId(stuGrade);
             
             if(aai[x].aai_type == 'Subject') {
                 if (aai) compileAai.push(aai[0]);
@@ -248,7 +248,7 @@ class classroomMemberGrades {
     }
 
     async addStudentGradeScore(req) {
-        const existingAai = await aaiService.getAaiBysubjectAaiId(req);
+        const existingAai = await aaiService.getAaiBySubjectAaiId(req);
         const aai = convertToCamelCase(existingAai[0]);
         const gradeRules = await aaiService.getAaiGradesByClassroomCode(aai);
 

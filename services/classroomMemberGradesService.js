@@ -151,6 +151,8 @@ class classroomMemberGrades {
             result[0].scores[q].aaiName = subject.aai_name;
             result[0].scores[q].aaiDescr = subject.aai_descr;
             result[0].scores[q].aaiWeight = subject.aaiWeight;
+
+            
         }
         
         return result;
@@ -168,37 +170,29 @@ class classroomMemberGrades {
             const stuGrade = convertToCamelCase(data[x]);
             const aai = await aaiService.getAaiBySubjectAaiId(stuGrade);
             
-            if(aai[x].aai_type == 'Subject') {
-                if (aai) compileAai.push(aai[0]);
-            }
+            if (aai) compileAai.push(aai[0]);
         }
 
         const aaiMap = {};
         for (const aai of compileAai) {
             aaiMap[aai.subject_aai_id] = {
-                subjectAaiId: aai.subject_aai_id,
                 aaiName: aai.aai_name,
                 aaiDescr: aai.aai_descr,
                 aaiWeight: aai.aai_weight,
                 subjectCode: aai.subject_code
             };
         }
+        
 
         const studentGrades = [];
 
-        if(!Object.keys(aaiMap).length)
-        {
-            return {
-                Message : `No Grades Found On Any Subject`
-            }
-        }
         for (const entry of data) {
-            const { member_id, score, subject_aai_id, grade } = entry;
+            const { member_id, score, subject_aai_id } = entry;
         
             let student = studentGrades.find(s => s.memberId === member_id);
         
             if (!student) {
-                student = { 
+                student = {
                     memberId: member_id,
                     scores: [],
                     total: 0,
@@ -208,12 +202,10 @@ class classroomMemberGrades {
             }
         
             student.scores.push({
-                subjectAaiId: subject_aai_id,
                 subjectCode: aaiMap[subject_aai_id].subjectCode,
                 aaiName: aaiMap[subject_aai_id].aaiName,
                 aaiDescr: aaiMap[subject_aai_id].aaiDescr,
                 aaiWeight: aaiMap[subject_aai_id].aaiWeight,
-                grade: grade,
                 score: parseFloat(score)
             });
         
@@ -247,6 +239,8 @@ class classroomMemberGrades {
         return result;
     }
 
+
+
     async addStudentGradeScore(req) {
         const existingAai = await aaiService.getAaiBySubjectAaiId(req);
         const aai = convertToCamelCase(existingAai[0]);
@@ -269,16 +263,46 @@ class classroomMemberGrades {
             return { message: `No matching grade found` };
         }
 
-        const { data, error } = await supabase.from('classroom_member_grades').insert([{
-            member_id: req.memberId,
-            subject_aai_id: req.subjectAaiId,
-            score: req.score,
-            grade: matchGrade,
-            subject_code: existingAai[0].subject_code
-        }]).select('*');
+        let result = {};
+        let errorMsg = '';
+        const checkExistinGrades = await this.getMemberGradeByAaiIdAndMemberId(req);
+        if (checkExistinGrades) {
+            const { data: edit, error: e1 } = await supabase.from('classroom_member_grades')
+                                                    .update({
+                                                        score: req.score,
+                                                        grade: matchGrade,
+                                                    })
+                                                    .eq('subject_aai_id', req.subjectAaiId)
+                                                    .eq('member_id', req.memberId)
+                                                    .select('*');
 
-        if (error) return error;
-        return data;
+
+            result = edit
+            errorMsg = e1
+
+        } else {
+            const { data:add, e2 } = await supabase.from('classroom_member_grades').insert([{
+                                        member_id: req.memberId,
+                                        subject_aai_id: req.subjectAaiId,
+                                        score: req.score,
+                                        grade: matchGrade,
+                                        subject_code: existingAai[0].subject_code,
+                                        classroom_code: aai.classroomCode
+                                    }]).select('*');
+
+            result = add;
+            errorMsg = e2
+        }
+
+        if (errorMsg) 
+            return {
+                Message: errorMsg
+            };
+
+        return {
+            Grade: result,
+            Message: `Score added successfully`
+        };
     }
 
 }

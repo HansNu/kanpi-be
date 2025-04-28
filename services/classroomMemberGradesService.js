@@ -187,7 +187,7 @@ class classroomMemberGrades {
         const studentGrades = [];
 
         for (const entry of data) {
-            const { member_id, score, subject_aai_id } = entry;
+            const { member_id, score, subject_aai_id, grade} = entry;
         
             let student = studentGrades.find(s => s.memberId === member_id);
         
@@ -202,10 +202,12 @@ class classroomMemberGrades {
             }
         
             student.scores.push({
+                subjectAaiId: subject_aai_id,
                 subjectCode: aaiMap[subject_aai_id].subjectCode,
                 aaiName: aaiMap[subject_aai_id].aaiName,
                 aaiDescr: aaiMap[subject_aai_id].aaiDescr,
                 aaiWeight: aaiMap[subject_aai_id].aaiWeight,
+                grade: grade,
                 score: parseFloat(score)
             });
         
@@ -266,7 +268,7 @@ class classroomMemberGrades {
         let result = {};
         let errorMsg = '';
         const checkExistinGrades = await this.getMemberGradeByAaiIdAndMemberId(req);
-        if (checkExistinGrades) {
+        if (checkExistinGrades.length > 0 || checkExistinGrades == null) {
             const { data: edit, error: e1 } = await supabase.from('classroom_member_grades')
                                                     .update({
                                                         score: req.score,

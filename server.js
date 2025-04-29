@@ -23,9 +23,10 @@ app.use(express.json());
 const port = 4200;
 const baseUrl = '/api';
 
-app.get('/', (req, res) => {
-    res.send('This is root node');
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'OK', uptime: process.uptime(), memory: process.memoryUsage() });
 });
+
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 

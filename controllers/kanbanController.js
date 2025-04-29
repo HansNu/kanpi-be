@@ -28,6 +28,21 @@ class KanbanController {
         res.status(200).json(KanbanList);
     }
 
+    async GetKanbanByClassroomCode(req, res){
+        const kanban = await kanbanService.getListKanbanByClassroomCode(req.body);
+        res.status(200).json(kanban);
+    }
+
+    async GetKanbanForCalendarByUserIdAndDate(req, res) {
+        const kanban = await kanbanService.getKanbanForCalendarByUserIdAndDate(req.body);
+        res.status(200).json(kanban);
+    }
+
+    async RejectAllKanbanByUserId(req, res) {
+        const kanban = await kanbanService.rejectAllKanbanByUserId(req.body);
+        res.status(200).json(kanban);
+    }
+    
     async AddKanban(req, res) {
         const validation = await kanbanService.addKanban(req.body);
         res.status(200).json(validation);
@@ -42,7 +57,7 @@ class KanbanController {
         const kanban = await kanbanService.updateKanbanToDone(req.body.kanbanId);
         res.status(200).json(kanban);
     }
-
+    
     async DeleteKanban(req, res) {
         const kanban = await kanbanService.deleteKanban(req.body.kanbanId);
         res.status(200).json(kanban);
@@ -58,15 +73,6 @@ class KanbanController {
         res.status(200).json(kanban);
     }
 
-    async GetKanbanByClassroomCode(req, res){
-        const kanban = await kanbanService.getListKanbanByClassroomCode(req.body);
-        res.status(200).json(kanban);
-    }
-
-    async RejectAllKanbanByUserId(req, res) {
-        const kanban = await kanbanService.rejectAllKanbanByUserId(req.body);
-        res.status(200).json(kanban);
-    }
 
     async ApproveAllKanbanByUserId(req, res) {
         const kanban = await kanbanService.approveAllKanbanByUserId(req.body);

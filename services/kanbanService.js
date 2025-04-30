@@ -212,6 +212,66 @@ class kanbanService {
         return data;
     }
 
+    async getKanbanForDashboardByUserId(req){
+        const { data, error } = await supabase.from('kanban').select('*')
+                                .eq('user_id', req.userId);
+
+        if(data == null || data.length == 0){
+            return `No Kanban found`;
+        }
+        if (error) return {message: error};
+        
+        let kanbanPendingCount = data.filter(k => k.kanban_stat == 'Pending').length;
+        let kanbanInProgressCount = data.filter(k => k.kanban_stat == 'In Progress').length;
+        let kanbanDoneCount = data.filter(k => k.kanban_stat == 'Done').length;
+        let kanbanLateCount = data.filter(k => k.kanban_stat == 'Late').length;
+        let kanbanApproved = data.filter(k => k.kanban_stat == 'Approved').length;
+        let kanbanRejected = data.filter(k => k.kanban_stat == 'Rejected').length;
+
+        let kanbanTotal = kanbanPendingCount + kanbanInProgressCount + kanbanDoneCount + kanbanLateCount + kanbanApproved + kanbanRejected;
+        let kanbanProgress = `Kanban Approved : ${kanbanApproved} / ${kanbanTotal}`
+        
+        return {
+                Pending: kanbanPendingCount,
+                InProgress: kanbanInProgressCount,
+                Done: kanbanDoneCount,
+                Late: kanbanLateCount,
+                Progress : kanbanProgress
+        };
+    }
+
+    async getKanbanClassroomForDashboardByUserId(req){
+        const userClassroomList = await classroomService.getListClassroomByUserId(req.userId); 
+
+        let kanbanProgress = ``;
+        let kanbanClassroom = {}
+        for(const classroom of userClassroomList){
+            
+            const { data, error } = await supabase.from('kanban').select('*')
+                                    .eq('user_id', req.userId).eq('classroom_code', classroom.classroom_code);
+    
+            if (error) return {message: error};
+            
+            let kanbanPendingCount = data.filter(k => k.kanban_stat == 'Pending').length;
+            let kanbanInProgressCount = data.filter(k => k.kanban_stat == 'In Progress').length;
+            let kanbanDoneCount = data.filter(k => k.kanban_stat == 'Done').length;
+            let kanbanLateCount = data.filter(k => k.kanban_stat == 'Late').length;
+            let kanbanApproved = data.filter(k => k.kanban_stat == 'Approved').length;
+            let kanbanRejected = data.filter(k => k.kanban_stat == 'Rejected').length;
+    
+            let kanbanTotal = kanbanPendingCount + kanbanInProgressCount + kanbanDoneCount + kanbanLateCount + kanbanApproved + kanbanRejected;
+            kanbanProgress = `Kanban Approved : ${kanbanApproved} / ${kanbanTotal}`
+
+            kanbanClassroom[`${classroom.classroom_code} - ${classroom.classroom_name}`] = {                Pending: kanbanPendingCount,
+                InProgress: kanbanInProgressCount,
+                Done: kanbanDoneCount,
+                Late: kanbanLateCount,
+                Progress : kanbanProgress
+            }
+        }
+        return kanbanClassroom; 
+    }
+
     async addKanban(kanbanData) {
         const getClassMemberData = await supabase.from('classroom_member').select('*')
             .eq('user_id', kanbanData.userId).eq('classroom_code', kanbanData.classroomCode).single();

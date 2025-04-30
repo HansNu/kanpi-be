@@ -38,11 +38,21 @@ class KanbanController {
         res.status(200).json(kanban);
     }
 
+    async GetKanbanForDashboardByUserId(req, res) {
+        const kanban = await kanbanService.getKanbanForDashboardByUserId(req.body);
+        res.status(200).json(kanban);
+    }
+
+    async GetKanbanClassroomForDashboardByUserId(req, res) {
+        const kanban = await kanbanService.getKanbanClassroomForDashboardByUserId(req.body);
+        res.status(200).json(kanban);
+    }
+
     async RejectAllKanbanByUserId(req, res) {
         const kanban = await kanbanService.rejectAllKanbanByUserId(req.body);
         res.status(200).json(kanban);
     }
-    
+
     async AddKanban(req, res) {
         const validation = await kanbanService.addKanban(req.body);
         res.status(200).json(validation);

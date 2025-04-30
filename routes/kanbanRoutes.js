@@ -10,6 +10,8 @@ router.post(baseUrl + '/getListKanbanByUserIdAndMonth', KanbanController.GetList
 router.post(baseUrl + '/getListKanbanByUserAndClassroom', KanbanController.GetListKanbanByUserAndClassroom);
 router.post(baseUrl + '/getKanbanByClassroomCode', KanbanController.GetKanbanByClassroomCode);
 router.post(baseUrl + '/getKanbanForCalendarByUserIdAndDate', kanbanController.GetKanbanForCalendarByUserIdAndDate);
+router.post(baseUrl + '/getKanbanForDashboardByUserId', kanbanController.GetKanbanForDashboardByUserId);
+router.post(baseUrl + '/getKanbanClassroomForDashboardByUserId', kanbanController.GetKanbanClassroomForDashboardByUserId);
 
 router.post(baseUrl + '/addKanban', KanbanController.AddKanban);
 router.post(baseUrl + '/editKanban', kanbanController.EditKanban);

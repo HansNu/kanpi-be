@@ -2,7 +2,8 @@ const supabase = require('./supabaseClient');
 const userService = require('../services/userService');
 const classroomService = require('../services/classroomService');
 const classroomSubjectService = require('../services/classroomSubjectService');
-const { map } = require('lodash');
+const _ = require('lodash');
+
 
 class aaiService{
 
@@ -185,6 +186,33 @@ class aaiService{
         }
     }
 
+    async getListGeneralAaiClassroomByUserId(req){
+        const userClassroomList = await classroomService.getListClassroomByUserId(req.userId); 
+        
+        let classroom = {};
+        let avgScore = 0;
+        let classroomName = ``;
+        for(const userClass in userClassroomList){
+            const classList = await convertToCamelCase(userClassroomList[userClass]);
+            const classroomMemberGradesService = require('../services/classroomMemberGradesService');
+            const getGeneralGrades = await classroomMemberGradesService.getGeneralStudentGrades(classList);
+
+            classroomName = classList.classroomName;
+            if(getGeneralGrades.Message){
+                avgScore = 0
+            } else {
+                avgScore = getGeneralGrades[0].averageScore;
+            }
+
+            classroom[classList.classroomCode] = {
+                classroomName: classroomName,
+                score: avgScore
+            }
+        }
+
+        return classroom;
+    }
+
     async deleteAai(req){
         const existingAai = await this.getAaiByClassroomCode(req);
         if (existingAai == null || existingAai.length == 0){
@@ -345,6 +373,14 @@ class aaiService{
     }
         
 
+}
+
+function convertToCamelCase(obj) {
+    return Object.keys(obj).reduce((acc, key) => {
+        const camelKey = _.camelCase(key); // Convert snake_case to camelCase
+        acc[camelKey] = obj[key];
+        return acc;
+    }, {});
 }
 
 module.exports = new aaiService();

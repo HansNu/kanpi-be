@@ -8,7 +8,8 @@ router.post(baseUrl + '/getAaiByClassroomCode', aaiController.GetAaiByClassroomC
 router.post(baseUrl + '/getAaiGradesByClassroomCode', aaiController.GetAaiGradesByClassroomCode);
 router.post(baseUrl + '/getAaiBySubjectAaiId', aaiController.GetAaiBySubjectAaiId);
 router.post(baseUrl + '/getSubjectAaiByClassroomCode', aaiController.GetSubjectAaiByClassroomCode);
-router.post(baseUrl + '/getSubjectAaiByClassroomCodeAndSubjectCode', aaiController.GetSubjectAaiByClassroomCodeAndSubjectCode)
+router.post(baseUrl + '/getSubjectAaiByClassroomCodeAndSubjectCode', aaiController.GetSubjectAaiByClassroomCodeAndSubjectCode);
+router.post(baseUrl + '/getListGeneralAaiClassroomByUserId', aaiController.GetListGeneralAaiClassroomByUserId);
 
 router.post(baseUrl + '/addAai', aaiController.AddAai);
 router.post(baseUrl + '/editAai', aaiController.EditAai);

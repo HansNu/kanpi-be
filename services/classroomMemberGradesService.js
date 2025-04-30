@@ -241,8 +241,6 @@ class classroomMemberGrades {
         return result;
     }
 
-
-
     async addStudentGradeScore(req) {
         const existingAai = await aaiService.getAaiBySubjectAaiId(req);
         const aai = convertToCamelCase(existingAai[0]);

@@ -200,6 +200,18 @@ class kanbanService {
             return kanbanWithSubjects;
     }
 
+    async getKanbanForCalendarByUserIdAndDate(req){
+        const { data, error } = await supabase.from('kanban').select('*')
+                                .eq('user_id', req.userId)
+                                .in('kanban_stat', ['Pending' , 'In Progress'])
+                                .gte('deadline', req.startDate)
+                                .lte('deadline', req.endDate);
+        
+        if (error) return {message: error};
+        
+        return data;
+    }
+
     async addKanban(kanbanData) {
         const getClassMemberData = await supabase.from('classroom_member').select('*')
             .eq('user_id', kanbanData.userId).eq('classroom_code', kanbanData.classroomCode).single();
@@ -435,6 +447,7 @@ class kanbanService {
             message: `Kanban ${existingKanban.subject_name} have been Approved`
         }
     }
+
 }
 
 

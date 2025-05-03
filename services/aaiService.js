@@ -111,7 +111,8 @@ class aaiService{
             }
         }        
 
-        const newTotalWeight = totalClassAaiWeight + req.aaiWeight;
+        const checkSameAai = isMaxWeight.filter(x => x.subject_aai_id == req.subjectAaiId);
+        const newTotalWeight = (totalClassAaiWeight - checkSameAai[0].aai_weight) + req.aaiWeight;
         if (newTotalWeight > 1.0) {
             return {
                 Message: `Updated AAI Weight = ${newTotalWeight}, Total Updated Weight Cannot Exceed 1`,
@@ -121,15 +122,12 @@ class aaiService{
         const {data, error} = await supabase.from('subject_academic_achievement_index')
                                 .update([
                                     {
-                                        subject_code : req.subjectCode,
                                         aai_name : req.aaiName,
                                         aai_descr : req.aaiDescr,
                                         aai_weight : req.aaiWeight,
                                         aai_active : true,
                                         created_by : userData.name,
-                                        updated_by : userData.name,
-                                        aai_type : req.aaiType,
-                                        classroom_code : req.classroomCode
+                                        updated_by : userData.name
                                     }
                                 ])
                                 .eq('subject_aai_id', req.subjectAaiId)
@@ -140,7 +138,7 @@ class aaiService{
         }
         return {
             AAI :data,
-            Message : `Academic Achievement Index(AAI) Added Successfully` 
+            Message : `Academic Achievement Index(AAI) Edited Successfully` 
         };
     }
 
@@ -220,7 +218,14 @@ class aaiService{
                 Message : `AAI Of Class ${req.classroomCode} Not Found`
             }
         }
+        const deleteGrades = await supabase.from('classroom_member_grades').delete().eq('subject_aai_id', req.subjectAaiId).eq('classroom_code', req.classroomCode).select('*');
         const {data, error} = await supabase.from('subject_academic_achievement_index').delete().eq('subject_aai_id', req.subjectAaiId).eq('classroom_code', req.classroomCode).select('*');
+        
+        if(error){
+            return {
+                message: error
+            };
+        }
         return {
             Message : 'AAI Deleted Successfully',
             AAI : data

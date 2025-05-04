@@ -47,7 +47,7 @@ class kanbanService {
         
             let kanbanStat = kanban.kanban_stat;
     
-            if(deadlineDt && deadlineDt < currentDate && kanbanStat != 'Done') {
+            if(deadlineDt && deadlineDt < currentDate && kanbanStat != 'Done' && kanbanStat != 'Approved') {
                 kanbanStat = 'Late';
             }
     
@@ -121,7 +121,7 @@ class kanbanService {
             
                 let kanbanStat = kanban.kanban_stat;
         
-                if(deadlineDt && deadlineDt < currentDate && kanbanStat != 'Done') {
+                if(deadlineDt && deadlineDt < currentDate && kanbanStat != 'Done' && kanbanStat != 'Approved') {
                     kanbanStat = 'Late';
                 }
         
@@ -196,6 +196,24 @@ class kanbanService {
                 ...kanban,
                 subject: subjects.find(subject => subject.subject_code === kanban.subject_code) || null
             }));
+
+            const currentDate = new Date();
+
+            for(const kanban of kanbanWithSubjects) {
+                const deadlineDt = kanban.deadline ? new Date(kanban.deadline) : null;
+            
+                let kanbanStat = kanban.kanban_stat;
+        
+                if(deadlineDt && deadlineDt < currentDate && kanbanStat != 'Done' && kanbanStat != 'Approved') {
+                    kanbanStat = 'Late';
+                }
+        
+                const updateLate = await supabase.from('kanban').update({ kanban_stat: kanbanStat }).eq('kanban_id', kanban.kanban_id).select('*');
+        
+                if (updateLate.error) {
+                    return error('Error updating kanban status:', updateLate.error);
+                }
+            }
         
             return kanbanWithSubjects;
     }
@@ -229,21 +247,24 @@ class kanbanService {
         let kanbanRejected = data.filter(k => k.kanban_stat == 'Rejected').length;
 
         let kanbanTotal = kanbanPendingCount + kanbanInProgressCount + kanbanDoneCount + kanbanLateCount + kanbanApproved + kanbanRejected;
-        let kanbanProgress = `Kanban Approved : ${kanbanApproved} / ${kanbanTotal}`
+        let kanbanProgress = ((kanbanApproved / kanbanTotal) * 100).toFixed(2);
+        const achieve = `${kanbanProgress}%` 
         
         return {
                 Pending: kanbanPendingCount,
                 InProgress: kanbanInProgressCount,
                 Done: kanbanDoneCount,
                 Late: kanbanLateCount,
-                Progress : kanbanProgress
+                Approved: kanbanApproved,
+                Rejected: kanbanRejected,
+                Total : kanbanTotal,
+                Progress : achieve
         };
     }
 
     async getKanbanClassroomForDashboardByUserId(req){
         const userClassroomList = await classroomService.getListClassroomByUserId(req.userId); 
 
-        let kanbanProgress = ``;
         let kanbanClassroom = {}
         for(const classroom of userClassroomList){
             
@@ -260,13 +281,18 @@ class kanbanService {
             let kanbanRejected = data.filter(k => k.kanban_stat == 'Rejected').length;
     
             let kanbanTotal = kanbanPendingCount + kanbanInProgressCount + kanbanDoneCount + kanbanLateCount + kanbanApproved + kanbanRejected;
-            kanbanProgress = `Kanban Approved : ${kanbanApproved} / ${kanbanTotal}`
+            let kanbanProgress = ((kanbanApproved / kanbanTotal) * 100).toFixed(2);
+            const achieve = `${kanbanProgress}%` 
 
-            kanbanClassroom[`${classroom.classroom_code} - ${classroom.classroom_name}`] = {                Pending: kanbanPendingCount,
+            kanbanClassroom[`${classroom.classroom_code} - ${classroom.classroom_name}`] = {                
+                Pending: kanbanPendingCount,
                 InProgress: kanbanInProgressCount,
                 Done: kanbanDoneCount,
                 Late: kanbanLateCount,
-                Progress : kanbanProgress
+                Approved: kanbanApproved,
+                Rejected: kanbanRejected,
+                Total : kanbanTotal,
+                Progress : achieve
             }
         }
         return kanbanClassroom; 

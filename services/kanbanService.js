@@ -248,7 +248,7 @@ class kanbanService {
 
         let kanbanTotal = kanbanPendingCount + kanbanInProgressCount + kanbanDoneCount + kanbanLateCount + kanbanApproved + kanbanRejected;
         let kanbanProgress = ((kanbanApproved / kanbanTotal) * 100).toFixed(2);
-        const achieve = `${kanbanProgress}%` 
+        const achieve = kanbanProgress 
         
         return {
                 Pending: kanbanPendingCount,
@@ -264,8 +264,9 @@ class kanbanService {
 
     async getKanbanClassroomForDashboardByUserId(req){
         const userClassroomList = await classroomService.getListClassroomByUserId(req.userId); 
+        
 
-        let kanbanClassroom = {}
+        let kanbanClassroom = []
         for(const classroom of userClassroomList){
             
             const { data, error } = await supabase.from('kanban').select('*')
@@ -282,20 +283,22 @@ class kanbanService {
     
             let kanbanTotal = kanbanPendingCount + kanbanInProgressCount + kanbanDoneCount + kanbanLateCount + kanbanApproved + kanbanRejected;
             let kanbanProgress = ((kanbanApproved / kanbanTotal) * 100).toFixed(2);
-            const achieve = `${kanbanProgress}%` 
-
-            kanbanClassroom[`${classroom.classroom_code} - ${classroom.classroom_name}`] = {                
-                Pending: kanbanPendingCount,
-                InProgress: kanbanInProgressCount,
-                Done: kanbanDoneCount,
-                Late: kanbanLateCount,
-                Approved: kanbanApproved,
-                Rejected: kanbanRejected,
-                Total : kanbanTotal,
-                Progress : achieve
-            }
+            kanbanClassroom.push({
+                classroom: `${classroom.classroom_code} - ${classroom.classroom_name}`,
+                data: {
+                    Pending: kanbanPendingCount,
+                    InProgress: kanbanInProgressCount,
+                    Done: kanbanDoneCount,
+                    Late: kanbanLateCount,
+                    Approved: kanbanApproved,
+                    Rejected: kanbanRejected,
+                    Total: kanbanTotal,
+                    Progress: kanbanProgress
+                }
+            });
+    
         }
-        return kanbanClassroom; 
+        return kanbanClassroom;    
     }
 
     async addKanban(kanbanData) {

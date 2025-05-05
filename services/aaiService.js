@@ -3,6 +3,7 @@ const userService = require('../services/userService');
 const classroomService = require('../services/classroomService');
 const classroomSubjectService = require('../services/classroomSubjectService');
 const _ = require('lodash');
+const classroomMemberService = require('./classroomMemberService');
 
 
 class aaiService{
@@ -156,11 +157,11 @@ class aaiService{
         }
     }
 
-    async getSubjectAaiByClassroomCode(req) {
+    async getSubjectAaiByClassroomCode(code) {
         const { data, error } = await supabase
             .from('subject_academic_achievement_index')
             .select('*')
-            .eq('classroom_code', req.classroomCode).eq('aai_type', 'Subject');
+            .eq('classroom_code', code.classroomCode).eq('aai_type', 'Subject');
 
 
         if(error){
@@ -184,30 +185,51 @@ class aaiService{
         }
     }
 
-    async getListGeneralAaiClassroomByUserId(req){
-        const userClassroomList = await classroomService.getListClassroomByUserId(req.userId); 
+    async getListGeneralAaiClassroomByUserId(req) {
+        const userClassroomList = await classroomService.getListClassroomByUserId(req.userId);
+        const getMemberId = await classroomMemberService.getClassroomMemberByUserId(req.userId);
         
-        let classroom = {};
-        let avgScore = 0;
-        let classroomName = ``;
-        for(const userClass in userClassroomList){
-            const classList = await convertToCamelCase(userClassroomList[userClass]);
+        let classroom = [];
+        
+        for (const userClass of userClassroomList) {
+            const classList = await convertToCamelCase(userClass);
             const classroomMemberGradesService = require('../services/classroomMemberGradesService');
             const getGeneralGrades = await classroomMemberGradesService.getGeneralStudentGrades(classList);
-
-            classroomName = classList.classroomName;
-            if(getGeneralGrades.Message){
-                avgScore = 0
-            } else {
+            const getAai = await this.getSubjectAaiByClassroomCode(classList);
+            
+            let gradedAaiCount = 0;
+            let notGradedCount = 0;
+            
+            for (const aaiItem of getAai) {
+                const aaiGrades = await supabase
+                    .from('classroom_member_grades')
+                    .select('*')
+                    .eq('subject_aai_id', aaiItem.subject_aai_id);
+                    
+                if (aaiGrades && aaiGrades.data && aaiGrades.data.length > 0) {
+                    gradedAaiCount++;
+                } else {
+                    notGradedCount++;
+                }
+            }
+            
+            let avgScore = 0;
+            if (!getGeneralGrades.Message) {
                 avgScore = getGeneralGrades[0].averageScore;
             }
-
-            classroom[classList.classroomCode] = {
-                classroomName: classroomName,
-                score: avgScore
-            }
+            
+            classroom.push({
+                classroom: `${userClass.classroom_code} - ${userClass.classroom_name}`,
+                data : {
+                    classroomName: classList.classroomName,
+                    score: avgScore,
+                    gradedAaiCount: gradedAaiCount,
+                    notGradedCount: notGradedCount,
+                    totalAai: getAai.length
+                }
+            })
         }
-
+        
         return classroom;
     }
 

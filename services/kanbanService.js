@@ -533,7 +533,7 @@ class kanbanService {
 
         return {
             Kanban: data,
-            message: `Kanban ${existingKanban.subject_name} have been Approved`
+            message: `Kanban ${existingKanban.subject_code} have been Approved`
         }
     }
 

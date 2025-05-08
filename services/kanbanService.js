@@ -35,28 +35,33 @@ class kanbanService {
             return 'Failed to fetch subjects';
         }
     
-        const kanbanWithSubjects = data.map(kanban => ({
-            ...kanban,
-            subject: subjects.find(subject => subject.subject_code === kanban.subject_code) || null
-        }));
-    
         const currentDate = new Date();
     
-        for(const kanban of kanbanWithSubjects) {
-            const deadlineDt = kanban.deadline ? new Date(kanban.deadline) : null;
-        
-            let kanbanStat = kanban.kanban_stat;
+        const kanbanWithSubjects = await Promise.all(
+            data.map(async (kanban) => {
+                const deadlineDt = kanban.deadline ? new Date(kanban.deadline) : null;
+                let kanbanStat = kanban.kanban_stat;
     
-            if(deadlineDt && deadlineDt < currentDate && kanbanStat != 'Done' && kanbanStat != 'Approved') {
-                kanbanStat = 'Late';
-            }
+                if (deadlineDt && deadlineDt < currentDate && kanbanStat !== 'Done' && kanbanStat !== 'Approved') {
+                    kanbanStat = 'Late';
     
-            const updateLate = await supabase.from('kanban').update({ kanban_stat: kanbanStat }).eq('kanban_id', kanban.kanban_id).select('*');
+                    const { error: updateError } = await supabase
+                        .from('kanban')
+                        .update({ kanban_stat: kanbanStat })
+                        .eq('kanban_id', kanban.kanban_id);
     
-            if (updateLate.error) {
-                return error('Error updating kanban status:', updateLate.error);
-            }
-        }
+                    if (updateError) {
+                        console.error('Error updating kanban status:', updateError);
+                    }
+                }
+    
+                return {
+                    ...kanban,
+                    kanban_stat: kanbanStat,
+                    subject: subjects.find(subject => subject.subject_code === kanban.subject_code) || null
+                };
+            })
+        );
     
         return kanbanWithSubjects;
     }
@@ -108,29 +113,33 @@ class kanbanService {
             if (subjectError) {
                 return 'Failed to fetch subjects';
             }
-        
-            const kanbanWithSubjects = data.map(kanban => ({
-                ...kanban,
-                subject: subjects.find(subject => subject.subject_code === kanban.subject_code) || null
-            }));
-
             const currentDate = new Date();
-    
-            for(const kanban of kanbanWithSubjects) {
-                const deadlineDt = kanban.deadline ? new Date(kanban.deadline) : null;
-            
-                let kanbanStat = kanban.kanban_stat;
         
-                if(deadlineDt && deadlineDt < currentDate && kanbanStat != 'Done' && kanbanStat != 'Approved') {
-                    kanbanStat = 'Late';
-                }
+            const kanbanWithSubjects = await Promise.all(
+                data.map(async (kanban) => {
+                    const deadlineDt = kanban.deadline ? new Date(kanban.deadline) : null;
+                    let kanbanStat = kanban.kanban_stat;
         
-                const updateLate = await supabase.from('kanban').update({ kanban_stat: kanbanStat }).eq('kanban_id', kanban.kanban_id).select('*');
+                    if (deadlineDt && deadlineDt < currentDate && kanbanStat !== 'Done' && kanbanStat !== 'Approved') {
+                        kanbanStat = 'Late';
         
-                if (updateLate.error) {
-                    return error('Error updating kanban status:', updateLate.error);
-                }
-            }
+                        const { error: updateError } = await supabase
+                            .from('kanban')
+                            .update({ kanban_stat: kanbanStat })
+                            .eq('kanban_id', kanban.kanban_id);
+        
+                        if (updateError) {
+                            console.error('Error updating kanban status:', updateError);
+                        }
+                    }
+        
+                    return {
+                        ...kanban,
+                        kanban_stat: kanbanStat,
+                        subject: subjects.find(subject => subject.subject_code === kanban.subject_code) || null
+                    };
+                })
+            );
         
             return kanbanWithSubjects;
     }
@@ -191,29 +200,33 @@ class kanbanService {
             if (subjectError) {
                 return 'Failed to fetch subjects';
             }
-        
-            const kanbanWithSubjects = data.map(kanban => ({
-                ...kanban,
-                subject: subjects.find(subject => subject.subject_code === kanban.subject_code) || null
-            }));
-
-            const currentDate = new Date();
-
-            for(const kanban of kanbanWithSubjects) {
-                const deadlineDt = kanban.deadline ? new Date(kanban.deadline) : null;
             
-                let kanbanStat = kanban.kanban_stat;
+            const currentDate = new Date();
+            const kanbanWithSubjects = await Promise.all(
+                data.map(async (kanban) => {
+                    const deadlineDt = kanban.deadline ? new Date(kanban.deadline) : null;
+                    let kanbanStat = kanban.kanban_stat;
         
-                if(deadlineDt && deadlineDt < currentDate && kanbanStat != 'Done' && kanbanStat != 'Approved') {
-                    kanbanStat = 'Late';
-                }
+                    if (deadlineDt && deadlineDt < currentDate && kanbanStat !== 'Done' && kanbanStat !== 'Approved') {
+                        kanbanStat = 'Late';
         
-                const updateLate = await supabase.from('kanban').update({ kanban_stat: kanbanStat }).eq('kanban_id', kanban.kanban_id).select('*');
+                        const { error: updateError } = await supabase
+                            .from('kanban')
+                            .update({ kanban_stat: kanbanStat })
+                            .eq('kanban_id', kanban.kanban_id);
         
-                if (updateLate.error) {
-                    return error('Error updating kanban status:', updateLate.error);
-                }
-            }
+                        if (updateError) {
+                            console.error('Error updating kanban status:', updateError);
+                        }
+                    }
+        
+                    return {
+                        ...kanban,
+                        kanban_stat: kanbanStat,
+                        subject: subjects.find(subject => subject.subject_code === kanban.subject_code) || null
+                    };
+                })
+            );
         
             return kanbanWithSubjects;
     }

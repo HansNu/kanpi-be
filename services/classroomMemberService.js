@@ -2,6 +2,7 @@ const supabase = require('./supabaseClient');
 const userService = require('../services/userService');
 const model = require('../models/index');
 const adminService = require('../services/classroomAdminService');
+const { get } = require('lodash');
 
 const member = 'member' || 'Member';
 const admin = 'admin' || 'Admin';
@@ -81,6 +82,12 @@ class classroomMemberService {
     
     
     async removeClassroomMemberByCode(req) {
+        const getClassroomMember = await supabase.from('classroom_member').select('*').eq('member_name', req.memberName).eq('classroom_code', req.classroomCode);
+        
+        if(getClassroomMember != null || getClassroomMember.length > 0) {
+            const delKanban = await supabase.from('kanban').delete().eq('member_id', getClassroomMember.data[0].member_id);
+            const delAAI = await supabase.from('classroom_member').delete().eq('member_id', getClassroomMember.data[0].member_id);    
+        }
         const { data, error } = await supabase
             .from('classroom_member')
             .delete()
@@ -89,10 +96,11 @@ class classroomMemberService {
                 classroom_code: req.classroomCode 
             })
             .select('*');
-            
+        
+
         if (error) {
             console.error("Failed to delete classroom member:", error);
-            return null;
+            return error;
         } else if (data == null || data.length == 0) {
             return {
                 message : `${req.memberName} not found or has been removed from classroom ${req.classroomCode}`

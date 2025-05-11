@@ -232,7 +232,6 @@ class kanbanService {
     }
 
     async getKanbanForCalendarByUserIdAndDate(req) {
-        // Step 1: Get relevant kanban entries
         const { data: kanbans, error } = await supabase
             .from('kanban')
             .select('*')
@@ -245,16 +244,14 @@ class kanbanService {
     
         const enrichedKanbans = [];
     
-        // Step 2: Enrich each kanban item with classroom_name and subject_name
         for (const kanban of kanbans) {
-            // Get classroom_name
             const { data: classroomData } = await supabase
                 .from('classroom')
                 .select('classroom_name')
                 .eq('classroom_code', kanban.classroom_code)
                 .single();
     
-            // Get subject_name via classroom_subject and subject
+
             const { data: classroomSubjectData } = await supabase
                 .from('classroom_subjects')
                 .select(`subject_name`)

@@ -218,17 +218,47 @@ class kanbanService {
             return kanbanWithSubjects;
     }
 
-    async getKanbanForCalendarByUserIdAndDate(req){
-        const { data, error } = await supabase.from('kanban').select('*')
-                                .eq('user_id', req.userId)
-                                .in('kanban_stat', ['Pending' , 'In Progress'])
-                                .gte('deadline', req.startDate)
-                                .lte('deadline', req.endDate);
-        
-        if (error) return {message: error};
-        
-        return data;
+    async getKanbanForCalendarByUserIdAndDate(req) {
+        // Step 1: Get relevant kanban entries
+        const { data: kanbans, error } = await supabase
+            .from('kanban')
+            .select('*')
+            .eq('user_id', req.userId)
+            .in('kanban_stat', ['Pending', 'In Progress'])
+            .gte('deadline', req.startDate)
+            .lte('deadline', req.endDate);
+    
+        if (error) return { message: error };
+    
+        const enrichedKanbans = [];
+    
+        // Step 2: Enrich each kanban item with classroom_name and subject_name
+        for (const kanban of kanbans) {
+            // Get classroom_name
+            const { data: classroomData } = await supabase
+                .from('classroom')
+                .select('classroom_name')
+                .eq('classroom_code', kanban.classroom_code)
+                .single();
+    
+            // Get subject_name via classroom_subject and subject
+            const { data: classroomSubjectData } = await supabase
+                .from('classroom_subjects')
+                .select(`subject_name`)
+                .eq('classroom_code', kanban.classroom_code)
+                .eq('subject_code', kanban.subject_code)
+                .single();
+    
+            enrichedKanbans.push({
+                ...kanban,
+                classroom_name: classroomData?.classroom_name ?? null,
+                subject_name: classroomSubjectData?.subject_name ?? null
+            });
+        }
+    
+        return enrichedKanbans;
     }
+    
 
     async getKanbanForDashboardByUserId(req){
         const { data, error } = await supabase.from('kanban').select('*')

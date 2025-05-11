@@ -1,5 +1,6 @@
 const supabase = require('./supabaseClient');
 const model = require('../models/index');
+const { get } = require('lodash');
 
 class userService {
 
@@ -45,6 +46,29 @@ class userService {
                 validity: false
             };
         }
+    }
+
+    async updateUserData(user){
+        const getExisting = await this.getUserByUserId(user.userId);
+        if (getExisting == null){
+            return {message: `User Not Found`};
+        }
+
+        const {data, error} = await supabase.from('users')
+                            .update([
+                                {
+                                    name: user.name ? user.name : getExisting.name,
+                                    email: user.email ? user.email : getExisting.email,
+                                    password : user.password ? user.password : getExisting.password
+                                }
+                            ])
+                            .eq('user_id', user.userId)
+                            .select('*');
+
+        return {
+            message : `User updated successfully`,
+            userData : data
+        }                    
     }
 }
 

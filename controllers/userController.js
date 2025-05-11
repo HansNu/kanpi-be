@@ -73,7 +73,11 @@ class userController {
             });
         }
     };
-    
+
+    async UpdateUserData(req, res){
+        const update = await userService.updateUserData(req.body);
+        res.status(200).json(update);
+    }
     
 }
 

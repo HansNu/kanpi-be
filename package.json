@@ -14,8 +14,7 @@
     "swagger-ui-express": "^5.0.1"
   },
   "scripts": {
-    "start": "node api/index.js",
-    "vercel-build": "echo 'Skipping build step'"
+    "start": "node server.js"
   },
   "engines": {
     "node": "18.x"

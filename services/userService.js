@@ -1,5 +1,8 @@
 const supabase = require('./supabaseClient');
 const model = require('../models/index');
+const classroomMember = require('../services/classroomMemberService');
+const classroomAdmin = require('../services/classroomAdminService');
+const kanbanService = require('../services/kanbanService');
 const { get } = require('lodash');
 
 class userService {
@@ -8,33 +11,33 @@ class userService {
         const { data, error } = await supabase.from('users').select('*').eq('user_id', userId);
         return data[0];
     }
-    
+
     async getUserByEmail(email) {
         const { data, error } = await supabase.from('users').select('*').eq('email', email);
         return data[0];
     }
-    
+
     async addUser(userData) {
         const userExisting = await this.getUserByEmail(userData.email);
-    
+
         if (userExisting) {
             throw new Error('Email already exists');
         }
-    
+
         const { data, error } = await supabase.from('users').insert(userData).select('*');
-    
+
         if (error) {
             console.log(error);
             throw new Error('Failed to add user, invalid data');
         }
         return data;
     }
-    
+
     async login(loginData) {
         const { data, error } = await supabase.from('users').select('*').eq('email', loginData.email).eq('password', loginData.password);
-    
+
         const userLogin = data;
-    
+
         if (userLogin.length != 0) {
             return {
                 user: userLogin,
@@ -48,27 +51,46 @@ class userService {
         }
     }
 
-    async updateUserData(user){
+    async updateUserData(user) {
         const getExisting = await this.getUserByUserId(user.userId);
-        if (getExisting == null){
-            return {message: `User Not Found`};
+        if (!getExisting) {
+            return { message: `User Not Found` };
         }
 
-        const {data, error} = await supabase.from('users')
-                            .update([
-                                {
-                                    name: user.name ? user.name : getExisting.name,
-                                    email: user.email ? user.email : getExisting.email,
-                                    password : user.password ? user.password : getExisting.password
-                                }
-                            ])
-                            .eq('user_id', user.userId)
-                            .select('*');
+        const newName = user.name ?? getExisting.name;
+        const newEmail = user.email ?? getExisting.email;
+        const newPassword = user.password ?? getExisting.password;
+
+        const { data, error } = await supabase.from('users')
+            .update({
+                name: newName,
+                email: newEmail,
+                password: newPassword
+            })
+            .eq('user_id', user.userId)
+            .select('*');
+
+
+        const checkMember = await classroomMember.getClassroomMemberByUserId(user.userId);
+        if (checkMember && checkMember.length > 0) {
+            await supabase.from('classroom_member')
+                .update({ member_name: newName })
+                .eq('user_id', user.userId);
+        }
+
+        const checkAdmin = await classroomAdmin.getClassroomSuperAdminByUserId(user);
+        if (checkAdmin && checkAdmin.length > 0) {
+            await supabase.from('classroom_admin')
+                .update({ member_name: newName })
+                .eq('user_id', user.userId);
+        }
+
+
 
         return {
-            message : `User updated successfully`,
-            userData : data
-        }                    
+            message: `User updated successfully`,
+            userData: data
+        }
     }
 }
 

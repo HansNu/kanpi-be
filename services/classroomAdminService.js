@@ -34,6 +34,17 @@ class classroomAdminService {
         return data;
     }
 
+    async getClassroomSuperAdminByUserId(req) {
+        const {data, error} = await supabase.from('classroom_admin').select('*').eq('user_id', req.userId);
+        if(data == null || data.length == 0) {
+            return {
+                message : `Data not found`
+            }
+        }
+
+        return data;
+    }
+
 
 }
 

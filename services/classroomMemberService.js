@@ -1,5 +1,4 @@
 const supabase = require('./supabaseClient');
-const userService = require('../services/userService');
 const model = require('../models/index');
 const adminService = require('../services/classroomAdminService');
 const { get } = require('lodash');

@@ -1,7 +1,5 @@
 const supabase = require('./supabaseClient');
 const model = require('../models/index');
-const userController = require('../controllers/userController');
-const userService = require('../services/userService');
 
 class classroomService {
 
@@ -102,8 +100,9 @@ class classroomService {
         if (existingClassroom.length > 0) {
             throw new Error('Classroom code already exists');
         }
-    
-        const adminData = await userService.getUserByUserId(classroomData.userId);
+        
+        const user= require('../services/userService');
+        const adminData = await user.getUserByUserId(classroomData.userId);
         
         if (!adminData) {
             throw new Error('user not found');

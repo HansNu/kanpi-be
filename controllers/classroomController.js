@@ -36,7 +36,7 @@ class classroomController {
 
     async AddClassroom (req, res){
         const classroomData = model.reqAddClassroomObj.toDatabaseFormat(req.body);
-        const newClassroom = await classroomService.addClassroom(classroomData, req.userId);
+        const newClassroom = await classroomService.addClassroom(classroomData);
         
         res.status(200).json({
             message: "Classroom added successfully",

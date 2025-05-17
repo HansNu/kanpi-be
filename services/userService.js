@@ -1,7 +1,5 @@
 const supabase = require('./supabaseClient');
 const model = require('../models/index');
-const classroomMember = require('../services/classroomMemberService');
-const classroomAdmin = require('../services/classroomAdminService');
 const kanbanService = require('../services/kanbanService');
 const { get } = require('lodash');
 
@@ -52,14 +50,17 @@ class userService {
     }
 
     async updateUserData(user) {
+        const classroomMember = require('../services/classroomMemberService');
+        const classroomAdmin = require('../services/classroomAdminService');
         const getExisting = await this.getUserByUserId(user.userId);
         if (!getExisting) {
             return { message: `User Not Found` };
         }
 
-        const newName = user.name ?? getExisting.name;
-        const newEmail = user.email ?? getExisting.email;
-        const newPassword = user.password ?? getExisting.password;
+        const newName = user.name ? user.name : getExisting.name;
+        const newEmail = user.email ? user.email : getExisting.email;
+        const newPassword = user.password ? user.password : getExisting.password;
+
 
         const { data, error } = await supabase.from('users')
             .update({

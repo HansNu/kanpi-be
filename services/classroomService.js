@@ -143,33 +143,36 @@ class classroomService {
     
 
     async deleteClassroom(classroomCode) {
+        const {data:kanban, error:kanbanErr} = await supabase.from('kanban').delete().eq('classroom_code', classroomCode)
+        if (kanbanErr) return{message: kanbanErr}
+
         const { data:memberData, error: memberError } = await supabase
             .from("classroom_member")
             .delete()
             .eq("classroom_code", classroomCode).select('*');
     
-        if (memberError) throw new Error(`Failed to delete classroom members: ${memberError.message}`);
+        if (memberError) return(`Failed to delete classroom members: ${memberError.message}`);
     
         const { data:adminData, error: adminError } = await supabase
             .from("classroom_admin")
             .delete()
             .eq("classroom_code", classroomCode).select('*');
     
-        if (adminError) throw new Error(`Failed to delete classroom admins: ${adminError.message}`);
+        if (adminError) return(`Failed to delete classroom admins: ${adminError.message}`);
     
         const { data: subjectData, error: subjectError } = await supabase
             .from("classroom_subjects")
             .delete()
             .eq("classroom_code", classroomCode).select('*');
     
-        if (subjectError) throw new Error(`Failed to delete classroom subjects: ${subjectError.message}`);
+        if (subjectError) return(`Failed to delete classroom subjects: ${subjectError.message}`);
     
         const { data: classroomData, error: classroomError } = await supabase
             .from("classroom")
             .delete()
             .eq("classroom_code", classroomCode).select('*');
     
-        if (classroomError) throw new Error(`Failed to delete classroom: ${classroomError.message}`);
+        if (classroomError) return(`Failed to delete classroom: ${classroomError.message}`);
 
         if((memberData == null || memberData.length == 0) && (adminData == null || adminData.length == 0) && 
             (subjectData == null || subjectData.length == 0) && (classroomData == null || classroomData.length == 0)){

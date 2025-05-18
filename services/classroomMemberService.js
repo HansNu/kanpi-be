@@ -100,13 +100,12 @@ class classroomMemberService {
         if (error) {
             console.error("Failed to delete classroom member:", error);
             return error;
-        } else if (data == null || data.length == 0) {
+        } else if (getClassroomMember.data == null || getClassroomMember.data.length == 0) {
             return {
                 message : `${req.memberName} not found or has been removed from classroom ${req.classroomCode}`
             }
         } else {
             return{
-                data : data,
                 message : `${req.memberName} has been removed from classroom ${req.classroomCode}`
             } 
         } 

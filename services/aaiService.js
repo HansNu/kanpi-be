@@ -4,6 +4,7 @@ const classroomService = require('../services/classroomService');
 const classroomSubjectService = require('../services/classroomSubjectService');
 const _ = require('lodash');
 const classroomMemberService = require('./classroomMemberService');
+const classroomAdminService = require('./classroomAdminService');
 
 
 class aaiService{
@@ -187,47 +188,62 @@ class aaiService{
 
     async getListGeneralAaiClassroomByUserId(req) {
         const userClassroomList = await classroomService.getListClassroomByUserId(req.userId);
-        const getMemberId = await classroomMemberService.getClassroomMemberByUserId(req.userId);
         
         let classroom = [];
         
         for (const userClass of userClassroomList) {
             const classList = await convertToCamelCase(userClass);
             const classroomMemberGradesService = require('../services/classroomMemberGradesService');
-            const getGeneralGrades = await classroomMemberGradesService.getGeneralStudentGrades(classList);
-            const getAai = await this.getSubjectAaiByClassroomCode(classList);
             
-            let gradedAaiCount = 0;
-            let notGradedCount = 0;
-            
-            for (const aaiItem of getAai) {
-                const aaiGrades = await supabase
-                    .from('classroom_member_grades')
-                    .select('*')
-                    .eq('subject_aai_id', aaiItem.subject_aai_id);
-                    
-                if (aaiGrades && aaiGrades.data && aaiGrades.data.length > 0) {
-                    gradedAaiCount++;
-                } else {
-                    notGradedCount++;
-                }
+            let admin = {
+                classroomCode : classList.classroomCode,
+                userId : req.userId
             }
             
-            let avgScore = 0;
-            if (!getGeneralGrades.Message) {
-                avgScore = getGeneralGrades[0].averageScore;
-            }
+            const checkAdmin = await classroomAdminService.getAdminByClassroomCodeAndUserId(admin);
+            const { data, error } = await supabase.from('classroom_member').select('*')
+            .eq('user_id', req.userId).eq('classroom_code', classList.classroomCode);
             
-            classroom.push({
-                classroom: `${userClass.classroom_code} - ${userClass.classroom_name}`,
-                data : {
-                    classroomName: classList.classroomName,
-                    score: avgScore,
-                    gradedAaiCount: gradedAaiCount,
-                    notGradedCount: notGradedCount,
-                    totalAai: getAai.length
+            if (checkAdmin.message) {
+                let getGrades = {
+                    classroomCode : classList.classroomCode,
+                    memberId : data[0].member_id
                 }
-            })
+                const getGeneralGrades = await classroomMemberGradesService.getGeneralStudentGradesByMemberId(getGrades);
+                const getAai = await this.getSubjectAaiByClassroomCode(classList);
+                
+                let gradedAaiCount = 0;
+                let notGradedCount = 0;
+                
+                for (const aaiItem of getAai) {
+                    const aaiGrades = await supabase
+                        .from('classroom_member_grades')
+                        .select('*')
+                        .eq('subject_aai_id', aaiItem.subject_aai_id).eq('member_id', data[0].member_id);
+                        
+                    if (aaiGrades && aaiGrades.data && aaiGrades.data.length > 0) {
+                        gradedAaiCount++;
+                    } else {
+                        notGradedCount++;
+                    }
+                }
+                
+                let avgScore = 0;
+                if (!getGeneralGrades.Message) {
+                    avgScore = getGeneralGrades[0].averageScore;
+                }
+                
+                classroom.push({
+                    classroom: `${userClass.classroom_code} - ${userClass.classroom_name}`,
+                    data : {
+                        classroomName: classList.classroomName,
+                        score: avgScore,
+                        gradedAaiCount: gradedAaiCount,
+                        notGradedCount: notGradedCount,
+                        totalAai: getAai.length
+                    }
+                })
+            }
         }
         
         return classroom;

@@ -4,14 +4,14 @@ const model = require('../models/index');
 
 class classroomAdminService {
 
-    async getAdminByClassroomCodeAndUserId(req) {
-        const { data:superAdmin } = await supabase.from('classroom_admin').select('*').eq('classroom_code', req.classroomCode).eq('user_id', req.userId);
+    async getAdminByClassroomCodeAndUserId(adminReq) {
+        const { data:superAdmin } = await supabase.from('classroom_admin').select('*').eq('classroom_code', adminReq.classroomCode).eq('user_id', adminReq.userId);
         if (superAdmin == null || superAdmin.length == 0) {
-            const {data:admin } = await supabase.from('classroom_member').select('*').eq('classroom_code', req.classroomCode).eq('member_role', 'Admin').eq('user_id', req.userId);
+            const {data:admin } = await supabase.from('classroom_member').select('*').eq('classroom_code', adminReq.classroomCode).eq('member_role', 'Admin').eq('user_id', adminReq.userId);
 
             if(admin == null || admin.length == 0) {
                 return {
-                    message : `Classroom does not exists or there are no admins in classroom with code ${req.classroomCode}`
+                    message : `Classroom does not exists or there are no admins in classroom with code ${adminReq.classroomCode}`
                 }
                 
             } else {

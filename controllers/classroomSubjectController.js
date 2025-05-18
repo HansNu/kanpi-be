@@ -18,8 +18,8 @@ class classroomSubjectController {
         });
     }
 
-    async DeleteClassroomSubjectBySubjectCodeAndSubjectName(req, res) {
-        const classrooms = await classroomSubjectService.deleteClassroomSubjectBySubjectCodeAndSubjectName(req.body);
+    async DeleteClassroomSubjectBySubjectCodeAndClassroomCode(req, res) {
+        const classrooms = await classroomSubjectService.deleteClassroomSubjectBySubjectCodeAndClassroomCode(req.body);
         
         res.status(200).json({
             data: classrooms

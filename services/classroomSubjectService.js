@@ -47,7 +47,7 @@ class classroomSubjectService {
         return data;
     }
 
-    async deleteClassroomSubjectBySubjectCodeAndSubjectName(req){
+    async deleteClassroomSubjectBySubjectCodeAndClassroomCode(req){
         const classrooms = await classroomService.getClassroomByClassroomCode(req);
 
         if (classrooms == null || classrooms.length == 0) {
@@ -57,8 +57,7 @@ class classroomSubjectService {
         }
 
         const existingSubject  = await supabase.from('classroom_subjects').select('*')
-                                .eq('subject_code', req.subjectCode).eq('classroom_code', req.classroomCode)
-                                .eq('subject_name', req.subjectName);
+                                .eq('subject_code', req.subjectCode).eq('classroom_code', req.classroomCode);
 
         if (existingSubject.data.length == 0 || existingSubject == null) {
             return {
@@ -73,7 +72,7 @@ class classroomSubjectService {
         } else if (error) {
             return error
         } else {
-            return {message : `Subject ${req.subjectName} Has Been Removed From Classroom ${existingSubject.data[0].classroom_code}`};
+            return {message : `Subject ${existingSubject.data[0].subject_name} Has Been Removed From Classroom ${existingSubject.data[0].classroom_code}`};
         }
     }
 

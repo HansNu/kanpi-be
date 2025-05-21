@@ -10,6 +10,7 @@ router.post(baseUserUrl + '/getUserByEmail', userController.GetUserByEmail);
 
 router.post(baseUserUrl + '/addUser', userController.AddUser);
 router.post(baseUserUrl + '/updateUserData', userController.UpdateUserData);
+router.post(baseUserUrl + '/forgotPassword', userController.ForgotPassword);
 
 router.post(baseUserUrl + '/login', userController.Login);
 

@@ -79,6 +79,10 @@ class userController {
         res.status(200).json(update);
     }
     
+    async ForgotPassword(req, res){
+        const update = await userService.forgotPassword(req.body);
+        res.status(200).json(update);
+    }
 }
 
 module.exports = new userController();

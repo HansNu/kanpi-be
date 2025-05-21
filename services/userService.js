@@ -93,6 +93,17 @@ class userService {
             userData: data
         }
     }
+
+    async forgotPassword(paw){
+        const checkEmail = await supabase.from('users').select('*').eq('email', paw.email);
+        if(checkEmail.data.length == 0 || checkEmail == null){
+            return `Email not found`
+        }
+
+        const updatePw = await supabase.from('users').update({password: paw.password}).eq('email', paw.email).select('*');
+
+        return updatePw.data;
+    }
 }
 
 module.exports = new userService();

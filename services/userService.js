@@ -86,8 +86,6 @@ class userService {
                 .eq('user_id', user.userId);
         }
 
-
-
         return {
             message: `User updated successfully`,
             userData: data
@@ -97,12 +95,15 @@ class userService {
     async forgotPassword(paw){
         const checkEmail = await supabase.from('users').select('*').eq('email', paw.email);
         if(checkEmail.data.length == 0 || checkEmail == null){
-            return `Email not found`
+            return {message: `Email not found`}
         }
 
         const updatePw = await supabase.from('users').update({password: paw.password}).eq('email', paw.email).select('*');
 
-        return updatePw.data;
+        return {
+            message: `User updated successfully`,
+            userData: updatePw.data
+        }
     }
 }
 

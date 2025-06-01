@@ -61,8 +61,8 @@ class userService {
         const newEmail = user.email ? user.email : getExisting.email;
         const newPassword = user.password ? user.password : getExisting.password;
 
-        if(user.currentPassword != getExisting.password){
-            return `Password does not match`;
+        if(user.currentPassword != getExisting.password || !user.currentPassword){
+            return {Message: `Password does not match`};
         }
 
 

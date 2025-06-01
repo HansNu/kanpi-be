@@ -15,9 +15,8 @@ class userController {
             });
         } catch (error) {
             res.status(500).json({
-                message: 'Failed to add user',
-                error: error.message
-            });
+                    message: `Failed to add user, ${error.message}`            
+        });
         }
     };
 

@@ -61,6 +61,10 @@ class userService {
         const newEmail = user.email ? user.email : getExisting.email;
         const newPassword = user.password ? user.password : getExisting.password;
 
+        if(user.currentPassword != getExisting.password){
+            return `Password does not match`;
+        }
+
 
         const { data, error } = await supabase.from('users')
             .update({

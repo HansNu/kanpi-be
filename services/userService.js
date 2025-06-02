@@ -50,6 +50,10 @@ class userService {
     }
 
     async updateUserData(user) {
+        if((user.password || user.password != '') &&
+            (user.currentPassword == '' || !user.currentPassword)){
+                return {message: `Current password required`};
+        }
         const classroomMember = require('../services/classroomMemberService');
         const classroomAdmin = require('../services/classroomAdminService');
         const getExisting = await this.getUserByUserId(user.userId);

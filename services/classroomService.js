@@ -143,8 +143,14 @@ class classroomService {
     
 
     async deleteClassroom(classroomCode) {
-        const {data:kanban, error:kanbanErr} = await supabase.from('kanban').delete().eq('classroom_code', classroomCode)
-        if (kanbanErr) return{message: kanbanErr}
+        const {data:grades, error:gradesErr} = await supabase.from('classroom_member_grades').delete().eq('classroom_code', classroomCode);
+        if(gradesErr) return{message: gradesErr};
+
+        const {data:aaiGrades, error:aaiGradesErr} = await supabase.from('subject_aai_grades').delete().eq('classroom_code', classroomCode);
+        if (aaiGradesErr) return{message: aaiGradesErr};
+
+        const {data:kanban, error:kanbanErr} = await supabase.from('kanban').delete().eq('classroom_code', classroomCode);
+        if (kanbanErr) return{message: kanbanErr};
 
         const { data:memberData, error: memberError } = await supabase
             .from("classroom_member")
@@ -177,7 +183,7 @@ class classroomService {
         if((memberData == null || memberData.length == 0) && (adminData == null || adminData.length == 0) && 
             (subjectData == null || subjectData.length == 0) && (classroomData == null || classroomData.length == 0)){
                 return {
-                    message : `Classroom ${classroomCode} doesn't exist or has been deleted`
+                    message : `Classroom doesn't exist or has been deleted`
                 }
             }
     

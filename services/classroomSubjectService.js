@@ -56,16 +56,27 @@ class classroomSubjectService {
             }
         }
 
+        
         const existingSubject  = await supabase.from('classroom_subjects').select('*')
-                                .eq('subject_code', req.subjectCode).eq('classroom_code', req.classroomCode);
-
+        .eq('subject_code', req.subjectCode).eq('classroom_code', req.classroomCode);
+        
         if (existingSubject.data.length == 0 || existingSubject == null) {
             return {
                 message : `Subject doesn't exists in classroom ${req.classroomCode}`
             }
         }
         
-        const {data, error} = await supabase.from('classroom_subjects').delete().eq('subject_code', req.subjectCode).select('*');
+        const delKanban = await supabase.from('kanban').delete()
+                        .eq('subject_code', req.subjectCode).eq('classroom_code', req.classroomCode);
+
+        const delMemberGrades = await supabase.from('classroom_member_grades').delete()
+                            .eq('subject_code', req.subjectCode).eq('classroom_code', req.classroomCode);
+        
+        const delAai = await supabase.from('subject_academic_achievement_index').delete()
+                            .eq('subject_code', req.subjectCode).eq('classroom_code', req.classroomCode);
+        
+        const {data, error} = await supabase.from('classroom_subjects').delete()
+                            .eq('subject_code', req.subjectCode).select('*');
 
         if(data.length == 0 || data == null || error){
             return `failed to delete subject`

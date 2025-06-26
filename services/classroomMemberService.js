@@ -85,7 +85,7 @@ class classroomMemberService {
         
         if(getClassroomMember != null || getClassroomMember.length > 0) {
             const delKanban = await supabase.from('kanban').delete().eq('member_id', getClassroomMember.data[0].member_id);
-            const delAAI = await supabase.from('classroom_member').delete().eq('member_id', getClassroomMember.data[0].member_id);    
+            const delGrades = await supabase.from('classroom_member_grades').delete().eq('member_id', getClassroomMember.data[0].member_id);    
         }
         const { data, error } = await supabase
             .from('classroom_member')

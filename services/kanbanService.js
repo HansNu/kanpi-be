@@ -233,13 +233,12 @@ class kanbanService {
 
     async getKanbanForCalendarByUserIdAndDate(req) {
         const { data: kanbans, error } = await supabase
-            .from('kanban')
-            .select('*')
-            .eq('user_id', req.userId)
-            .in('kanban_stat', ['Pending', 'In Progress'])
-            .gte('deadline', req.startDate)
-            .lte('deadline', req.endDate);
-    
+        .from('kanban')
+        .select('*')
+        .eq('user_id', req.userId)
+        .in('kanban_stat', ['Pending', 'In Progress'])
+        .gte('deadline', `${req.startDate}T00:00:00.000Z`)
+        .lte('deadline', `${req.endDate}T23:59:59.999Z`);
         if (error) return { message: error };
     
         const enrichedKanbans = [];

@@ -272,16 +272,18 @@ class classroomMemberGrades {
                             .select('*')
                             .eq('classroom_code', req.classroomCode).eq('aai_type', 'General');
         
-        for(let q=0; q < result[0].scores.length; q++){
-            const subject = getData.find(x => x.subject_code == result[0].scores[q].subjectCode);
+    for(let a=0; a < result.length; a ++){
+        for(let q=0; q < result[a].scores.length; q++){
+            const subject = getData.find(x => x.subject_code == result[a].scores[q].subjectCode);
 
-            result[0].scores[q].subjectAaiId = subject.subject_aai_id;
-            result[0].scores[q].aaiName = subject.aai_name;
-            result[0].scores[q].aaiDescr = subject.aai_descr;
-            result[0].scores[q].aaiWeight = subject.aaiWeight;
+            result[a].scores[q].subjectAaiId = subject.subject_aai_id;
+            result[a].scores[q].aaiName = subject.aai_name;
+            result[a].scores[q].aaiDescr = subject.aai_descr;
+            result[a].scores[q].aaiWeight = subject.aaiWeight;
 
             
         }
+    }
         
         return result;
     }

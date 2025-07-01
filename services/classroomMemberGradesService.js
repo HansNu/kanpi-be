@@ -145,7 +145,7 @@ class classroomMemberGrades {
                             .select('*')
                             .eq('classroom_code', req.classroomCode).eq('aai_type', 'General');
         
-        for(let q=0; q < result.length; q++){
+        for(let q=0; q < getData.length; q++){
             const subject = getData.find(x => x.subject_code == result[0].scores[q].subjectCode);        
 
             result[0].scores[q].subjectAaiId = subject.subject_aai_id;
@@ -272,8 +272,8 @@ class classroomMemberGrades {
                             .select('*')
                             .eq('classroom_code', req.classroomCode).eq('aai_type', 'General');
         
-        for(let q=0; q < result.length; q++){
-            const subject = getData.find(x => x.subject_code == result[0].scores[q].subjectCode);        
+        for(let q=0; q < result[0].scores.length; q++){
+            const subject = getData.find(x => x.subject_code == result[0].scores[q].subjectCode);
 
             result[0].scores[q].subjectAaiId = subject.subject_aai_id;
             result[0].scores[q].aaiName = subject.aai_name;
